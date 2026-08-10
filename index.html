@@ -177,7 +177,7 @@
         </div>
     </div>
     <div id="toast"></div>
-    <footer>Ma’lumotlar qurilmada saqlanadi. Optimal 2-Opt TSP Algoritmi.</footer>
+    <footer>Ma’lumotlar qurilmada saqlanadi. Klasterli 2-Opt TSP Algoritmi.</footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
@@ -276,34 +276,141 @@
         return d;
     }
 
+    // TARIXIY YO'NALISH MODELI
+    const HISTORY_ROUTES = [
+        ["19765","22751","25528","25536","25530","35115","25529","40755","40754","20579","25540","25548","19765"],
+        ["19765","40747","25546","22743","35115","25529","20583","35120","19765"],
+        ["19765","25553","25546","25536","35115","25529","20577","20583","20574","22747","40748","40755","40754","25540","25543","35116","20580","19765"],
+        ["19765","22751","35125","25546","25530","22743","20577","20579","40754","20580","25532","19765"],
+        ["19765","40747","22751","35116","25540","40748","20579","20574","20583","22743","25543","25546","35125","20584","25536","35115","19765"],
+        ["19765","35116","20580","25534","40748","40754","35120","22747","20574","20577","35115","22743","25536","20582","25548","25553","19765"]
+    ];
+
+    const HIST_EDGES = {};
+    HISTORY_ROUTES.forEach(seq => {
+        for (let i = 0; i < seq.length - 1; i++) {
+            const key = seq[i] + '>' + seq[i+1];
+            HIST_EDGES[key] = (HIST_EDGES[key] || 0) + 1;
+        }
+    });
+
+    const HIST_BONUS_PER_MATCH = 6;
+    const HIST_BONUS_CAP = 20;
+
+    function histBonus(aId, bId){
+        const fwd = HIST_EDGES[aId + '>' + bId] || 0;
+        const bwd = HIST_EDGES[bId + '>' + aId] || 0;
+        const weight = fwd + bwd * 0.35;
+        return Math.min(HIST_BONUS_CAP, weight * HIST_BONUS_PER_MATCH);
+    }
+
+    function routeCost(a, b){
+        if(!a.hasCoords || !b.hasCoords) return 0;
+        const dist = haversine(a, b);
+        return Math.max(0.05, dist - histBonus(a.oldId, b.oldId));
+    }
+
+    // ==================================================================================
+    // 1-BO'LIB YAYPAN-FURQAT ZANJIRI -> BOSHQALAR -> OXIRIDA QO'QON ICHKI NUQTALARI
+    // ==================================================================================
     function solve2OptTSP(nodes) {
         if (nodes.length <= 2) return nodes;
-        let unvisited = nodes.slice(1), current = nodes[0], path = [current];
 
+        const END_CITY_IDS = new Set(["35116", "25543", "25540", "20581"]); // Koppon, Jinnixona, Navoiy Marvarid, Navoiy Benazir
+        const NAYMANCHA_ID = "31212";
+
+        const depot = nodes[0];
+        let targets = nodes.slice(1);
+
+        let yaypanGroup = [], furqatGroup = [], endCityGroup = [], naymanchaNode = null, normalGroup = [];
+
+        targets.forEach(node => {
+            if (END_CITY_IDS.has(node.oldId)) {
+                endCityGroup.push(node);
+            } else if (node.oldId === NAYMANCHA_ID) {
+                naymanchaNode = node;
+            } else if (node.region && (node.region.includes("O‘zbekiston") || node.region.includes("Beshariq"))) {
+                yaypanGroup.push(node);
+            } else if (node.region && node.region.includes("Furqat")) {
+                furqatGroup.push(node);
+            } else {
+                normalGroup.push(node);
+            }
+        });
+
+        // 1. Yaypan guruhini saralash: Filialdan (Depodan) to'g'ri Yaypanga qarab
+        if (yaypanGroup.length > 0) {
+            let yUnvisited = yaypanGroup.slice();
+            let yCurrent = depot;
+            yaypanGroup = [];
+            while (yUnvisited.length > 0) {
+                let nearestIdx = 0, minCost = Infinity;
+                for (let i = 0; i < yUnvisited.length; i++) {
+                    let cost = routeCost(yCurrent, yUnvisited[i]);
+                    if (cost < minCost) { minCost = cost; nearestIdx = i; }
+                }
+                yCurrent = yUnvisited.splice(nearestIdx, 1)[0];
+                yaypanGroup.push(yCurrent);
+            }
+        }
+
+        // 2. Furqat guruhini Yaypanning oxiridan qaytish yo'nalishi bo'yicha saralash
+        if (furqatGroup.length > 0) {
+            let fUnvisited = furqatGroup.slice();
+            let fCurrent = yaypanGroup.length > 0 ? yaypanGroup[yaypanGroup.length - 1] : depot;
+            furqatGroup = [];
+            while (fUnvisited.length > 0) {
+                let nearestIdx = 0, minCost = Infinity;
+                for (let i = 0; i < fUnvisited.length; i++) {
+                    let cost = routeCost(fCurrent, fUnvisited[i]);
+                    if (cost < minCost) { minCost = cost; nearestIdx = i; }
+                }
+                fCurrent = fUnvisited.splice(nearestIdx, 1)[0];
+                furqatGroup.push(fCurrent);
+            }
+        }
+
+        // Birinchi bo'lib o'tiladigan Yaypan-Furqat-Naymancha guruhini shakllantirish
+        let westLoopGroup = [...yaypanGroup, ...furqatGroup];
+        if (naymanchaNode) {
+            westLoopGroup.push(naymanchaNode);
+        }
+
+        let path = [depot];
+        let current = depot;
+
+        // HAR DOIM BIRINCHI: Yaypan va uning atrofi mavjud bo'lsa, depodan birdaniga shu yerga boriladi
+        if (westLoopGroup.length > 0) {
+            path.push(...westLoopGroup);
+            current = westLoopGroup[westLoopGroup.length - 1];
+        }
+
+        // KEYINGI: Boshqa tumanlar nuqtalari
+        let unvisited = normalGroup.slice();
         while (unvisited.length > 0) {
-            let nearestIdx = 0, minDistance = Infinity;
+            let nearestIdx = 0, minCost = Infinity;
             for (let i = 0; i < unvisited.length; i++) {
-                let dist = haversine(current, unvisited[i]);
-                if (dist < minDistance) { minDistance = dist; nearestIdx = i; }
+                let cost = routeCost(current, unvisited[i]);
+                if (cost < minCost) { minCost = cost; nearestIdx = i; }
             }
             current = unvisited.splice(nearestIdx, 1)[0];
             path.push(current);
         }
 
-        let improved = true, iter = 0;
-        while (improved && iter < 50) {
-            improved = false; iter++;
-            for (let i = 1; i < path.length - 2; i++) {
-                for (let j = i + 1; j < path.length - 1; j++) {
-                    let d1 = haversine(path[i-1], path[i]) + haversine(path[j], path[j+1]);
-                    let d2 = haversine(path[i-1], path[j]) + haversine(path[i], path[j+1]);
-                    if (d2 < d1 - 0.0001) {
-                        path.splice(i, j - i + 1, ...path.slice(i, j + 1).reverse());
-                        improved = true;
-                    }
+        // ENG OXIRIDA: Qo'qon shahri ichki nuqtalari (Koppon, Navoiy Marvarid va h.k.)
+        if (endCityGroup.length > 0) {
+            let endCityUnvisited = endCityGroup.slice();
+            while (endCityUnvisited.length > 0) {
+                let nearestIdx = 0, minCost = Infinity;
+                for (let i = 0; i < endCityUnvisited.length; i++) {
+                    let cost = routeCost(current, endCityUnvisited[i]);
+                    if (cost < minCost) { minCost = cost; nearestIdx = i; }
                 }
+                current = endCityUnvisited.splice(nearestIdx, 1)[0];
+                path.push(current);
             }
         }
+
         return path;
     }
 

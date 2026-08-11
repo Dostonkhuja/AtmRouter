@@ -26,7 +26,7 @@
 
         .card{background:var(--panel);margin:12px 12px 8px;border-radius:var(--r-lg);border:1px solid var(--line);padding:16px;box-shadow:var(--sh);}
         .card h2{font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-dim);margin:0 0 10px;}
-        textarea{width:100%;min-height:74px;border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-size:15px;background:#FAFAFC;color:var(--ink);outline:none;transition:all 0.2s;}
+        textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-size:14px;background:#FAFAFC;color:var(--ink);outline:none;transition:all 0.2s;}
         textarea:focus{border-color:var(--forest);background:#FFF;box-shadow:0 0 0 3px var(--forest-d);}
         .hint{font-size:12px;color:var(--ink-dim);margin-top:6px;}
 
@@ -69,10 +69,7 @@
         .remove-btn-top:hover{background:var(--danger-d);color:var(--danger);}
         .remove-btn-top:active{transform:scale(0.88);}
 
-        .badge-region,.badge-new,.badge-nocoord{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:4px;}
-        .badge-region{background:rgba(118,118,128,0.12);color:var(--ink);}
-        .badge-new{background:var(--amber);color:#fff;font-size:9px;}
-        .badge-nocoord{background:var(--danger);color:#fff;font-size:9px;}
+        .badge-region{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:4px;background:rgba(118,118,128,0.12);color:var(--ink);}
 
         .actionrow{display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap;}
         .iconbtn{background:var(--forest-d);color:var(--forest);border:none;border-radius:var(--r-sm);padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:34px;transition:all 0.15s;}
@@ -122,20 +119,23 @@
     </style>
 </head>
 <body>
+<!-- CodePen xatoliklarini to'liq oldini olish uchun elementlar -->
+<input type="text" id="data_input" style="display:none;" value="">
+
 <div id="app">
     <header>
-        <div><h1>Qo‘qon bankomat marshruti Pro</h1><div class="sub" id="dateLabel"></div></div>
+        <div><h1>Qo‘qon marshruti Pro</h1><div class="sub" id="dateLabel"></div></div>
         <button class="reset-btn" onclick="resetDay()">Yangi kun</button>
     </header>
     <div class="card" id="inputCard">
-        <h2>ID kiriting</h2>
-        <textarea id="idInput" placeholder="Masalan: 62634 25536 62638..."></textarea>
-        <div class="hint">Bo‘sh joy, vergul yoki yangi qator bilan ajrating.</div>
+        <h2>ID va Izohlarni kiriting</h2>
+        <textarea id="idInput" placeholder="Excel'dan ID va izohlarni nusxalab tashlang:&#10;62644 410&#10;62650 710 4-200&#10;62621 дисп"></textarea>
+        <div class="hint">Excel jadvalidan nusxa olib qo'ying.</div>
         <button class="btn btn-primary" id="buildBtn" onclick="buildRoute()">Optimal Marshrut tuz</button>
         <div id="errBox"></div>
     </div>
     <div class="quickadd" id="quickAddBar" style="display:none;">
-        <input id="quickAddInput" placeholder="Yo‘lda qo‘shish: ID..." onkeydown="if(event.key==='Enter') quickAdd()">
+        <input id="quickAddInput" placeholder="Yo‘lda qo‘shish: ID va komment..." onkeydown="if(event.key==='Enter') quickAdd()">
         <button class="btn btn-ghost btn-sm" onclick="quickAdd()">+ Qo‘shish</button>
     </div>
     <div class="tabs" id="tabs" style="display:none;">
@@ -199,7 +199,6 @@
         [31212,62614,"Найманча",40.524491,70.874890,"Qo‘qon shahri"],
         [25534,62636,"Қўқонбой",40.469919,71.036609,"Qo‘qon shahri"],
         [25546,62641,"Тўлибой",40.571512,70.949227,"Qo‘qon shahri"],
-
         [25531,62603,"Furqat bozor",40.485157,70.771771,"Furqat tumani"],
         [20578,62593,"Фурқат 2-мактаб",40.483434,70.768838,"Furqat tumani"],
         [22742,62594,"Фурқат центр Беназир",40.481127,70.771070,"Furqat tumani"],
@@ -208,7 +207,6 @@
         [25524,62600,"Эшон",40.432663,70.786514,"Furqat tumani"],
         [25526,62602,"Қоратепа",40.496170,70.947387,"Furqat tumani yo'nalishi"],
         [22746,62596,"Катта Янги",40.412961,70.795135,"Furqat tumani"],
-
         [22749,62597,"Ohunqaynar",40.489739,70.919255,"O‘zbekiston tumani"],
         [25539,62605,"Yaypan Ibn Sino",40.380730,70.807390,"O‘zbekiston tumani"],
         [25551,62608,"Yaypan bozor",40.382123,70.808672,"O‘zbekiston tumani"],
@@ -224,37 +222,28 @@
         [35122,62618,"Яккатут",40.440822,70.882844,"O‘zbekiston tumani"],
         [25525,62601,"Тагоб",40.363333,70.740183,"O‘zbekiston tumani"],
         [25554,62609,"O‘qchi",40.335926,71.000247,"O‘zbekiston tumani"],
-
         [25542,62606,"Katta Minglar",40.539945,70.874052,"Dang‘ara tumani"],
         [35125,62647,"Данғара Марварид",40.579433,70.915486,"Dang‘ara tumani"],
-
         [25536,62637,"Мулкобод",40.669926,70.925951,"Dang‘ara tumani"],
         [25545,62640,"Доимобод",40.644189,70.801574,"Dang‘ara tumani"],
         [25548,62642,"Оқжар",40.667287,70.776388,"Dang‘ara tumani"],
         [20582,62626,"Оқжар Султон",40.672539,70.786122,"Dang‘ara tumani"],
-
         [25544,62607,"Бекобод",40.491804,70.834974,"Qo‘qon shahri"],
-
         [35120,62646,"Texnomart Bog‘dod",40.459033,71.213925,"Bog‘dod tumani"],
         [40748,62648,"Палма Боғдод",40.490608,71.108615,"Bog‘dod tumani"],
         [40755,62650,"Бордон",40.521392,71.162372,"Bog‘dod tumani"],
-
         [40754,62649,"Rishton",40.359448,71.279270,"Rishton tumani"],
-
         [20574,62621,"Водий Тараққиёт Янги Қўрғон",40.557274,71.142729,"Yangiqo‘rg‘on tumani"],
         [20577,62622,"Yangi Qo‘rg‘on Yulduzcha",40.560428,71.143001,"Yangiqo‘rg‘on tumani"],
         [20583,62627,"Янги Қўрғон бозорча",40.560076,71.142444,"Yangiqo‘rg‘on tumani"],
         [20579,62623,"Чуваланчи",40.492685,71.148291,"Yangiqo‘rg‘on tumani"],
-
         [35115,62644,"Бувайда круг",40.635463,71.079558,"Buvayda tumani"],
         [25529,62633,"Пошшопирим",40.629550,71.173002,"Buvayda tumani"],
         [22743,62629,"Бештерак",40.616193,71.054612,"Buvayda tumani"],
-
         [22747,62630,"Асмо Учкўприк",40.544409,71.055668,"Uchko‘prik tumani"],
         [20584,62628,"Sobirjon qishloq",40.618183,70.986767,"Uchko‘prik tumani"],
         [25530,62634,"Қораянтоқ",40.641035,70.998435,"Uchko‘prik tumani"],
         [20580,62624,"Қирғиз",40.416068,71.020548,"Uchko‘prik tumani"],
-
         [40744,62619,"Рапқон",40.351413,70.666247,"Beshariq tumani"]
     ];
 
@@ -264,175 +253,116 @@
     const norm = s => s.toLowerCase().replace(/[‘’´`]/g,"'").trim();
 
     const haversine = (a,b) => {
-        if(!a.hasCoords || !b.hasCoords) return 0;
+        if(!a?.hasCoords || !b?.hasCoords) return 0;
         const R=6371, toR=d=>d*Math.PI/180, dL=toR(b.lat-a.lat), dG=toR(b.lng-a.lng);
         const s=Math.sin(dL/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dG/2)**2;
         return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
     };
 
-    function calculateTotalDistance(path) {
-        let d = 0;
-        for (let i = 0; i < path.length - 1; i++) d += haversine(path[i], path[i+1]);
-        return d;
-    }
+    const calculateTotalDistance = path => path.reduce((acc, curr, i) => i === 0 ? 0 : acc + haversine(path[i-1], curr), 0);
 
-    // TARIXIY YO'NALISH MODELI
-    const HISTORY_ROUTES = [
-        ["19765","22751","25528","25536","25530","35115","25529","40755","40754","20579","25540","25548","19765"],
-        ["19765","40747","25546","22743","35115","25529","20583","35120","19765"],
-        ["19765","25553","25546","25536","35115","25529","20577","20583","20574","22747","40748","40755","40754","25540","25543","35116","20580","19765"],
-        ["19765","22751","35125","25546","25530","22743","20577","20579","40754","20580","25532","19765"],
-        ["19765","40747","22751","35116","25540","40748","20579","20574","20583","22743","25543","25546","35125","20584","25536","35115","19765"],
-        ["19765","35116","20580","25534","40748","40754","35120","22747","20574","20577","35115","22743","25536","20582","25548","25553","19765"]
-    ];
-
-    const HIST_EDGES = {};
-    HISTORY_ROUTES.forEach(seq => {
-        for (let i = 0; i < seq.length - 1; i++) {
-            const key = seq[i] + '>' + seq[i+1];
-            HIST_EDGES[key] = (HIST_EDGES[key] || 0) + 1;
-        }
-    });
-
-    const HIST_BONUS_PER_MATCH = 6;
-    const HIST_BONUS_CAP = 20;
-
-    function histBonus(aId, bId){
-        const fwd = HIST_EDGES[aId + '>' + bId] || 0;
-        const bwd = HIST_EDGES[bId + '>' + aId] || 0;
-        const weight = fwd + bwd * 0.35;
-        return Math.min(HIST_BONUS_CAP, weight * HIST_BONUS_PER_MATCH);
-    }
-
-    function routeCost(a, b){
-        if(!a.hasCoords || !b.hasCoords) return 0;
-        const dist = haversine(a, b);
-        return Math.max(0.05, dist - histBonus(a.oldId, b.oldId));
-    }
-
-    // ==================================================================================
-    // 1-BO'LIB YAYPAN-FURQAT ZANJIRI -> BOSHQALAR -> OXIRIDA QO'QON ICHKI NUQTALARI
-    // ==================================================================================
     function solve2OptTSP(nodes) {
         if (nodes.length <= 2) return nodes;
-
-        const END_CITY_IDS = new Set(["35116", "25543", "25540", "20581"]); // Koppon, Jinnixona, Navoiy Marvarid, Navoiy Benazir
-        const NAYMANCHA_ID = "31212";
-
+        const END_CITY_IDS = new Set(["35116", "25543", "25540", "20581"]);
         const depot = nodes[0];
         let targets = nodes.slice(1);
 
         let yaypanGroup = [], furqatGroup = [], endCityGroup = [], naymanchaNode = null, normalGroup = [];
 
         targets.forEach(node => {
-            if (END_CITY_IDS.has(node.oldId)) {
-                endCityGroup.push(node);
-            } else if (node.oldId === NAYMANCHA_ID) {
-                naymanchaNode = node;
-            } else if (node.region && (node.region.includes("O‘zbekiston") || node.region.includes("Beshariq"))) {
-                yaypanGroup.push(node);
-            } else if (node.region && node.region.includes("Furqat")) {
-                furqatGroup.push(node);
-            } else {
-                normalGroup.push(node);
-            }
+            if (END_CITY_IDS.has(node.oldId)) endCityGroup.push(node);
+            else if (node.oldId === "31212") naymanchaNode = node;
+            else if (node.region && (node.region.includes("O‘zbekiston") || node.region.includes("Beshariq"))) yaypanGroup.push(node);
+            else if (node.region && node.region.includes("Furqat")) furqatGroup.push(node);
+            else normalGroup.push(node);
         });
 
-        // 1. Yaypan guruhini saralash: Filialdan (Depodan) to'g'ri Yaypanga qarab
-        if (yaypanGroup.length > 0) {
-            let yUnvisited = yaypanGroup.slice();
-            let yCurrent = depot;
-            yaypanGroup = [];
-            while (yUnvisited.length > 0) {
-                let nearestIdx = 0, minCost = Infinity;
-                for (let i = 0; i < yUnvisited.length; i++) {
-                    let cost = routeCost(yCurrent, yUnvisited[i]);
-                    if (cost < minCost) { minCost = cost; nearestIdx = i; }
-                }
-                yCurrent = yUnvisited.splice(nearestIdx, 1)[0];
-                yaypanGroup.push(yCurrent);
+        const sortGroup = (group, start) => {
+            let unvisited = group.slice(), curr = start, sorted = [];
+            while (unvisited.length) {
+                let idx = 0, minCost = Infinity;
+                unvisited.forEach((item, i) => {
+                    let cost = haversine(curr, item);
+                    if (cost < minCost) { minCost = cost; idx = i; }
+                });
+                curr = unvisited.splice(idx, 1)[0];
+                sorted.push(curr);
             }
-        }
+            return sorted;
+        };
 
-        // 2. Furqat guruhini Yaypanning oxiridan qaytish yo'nalishi bo'yicha saralash
-        if (furqatGroup.length > 0) {
-            let fUnvisited = furqatGroup.slice();
-            let fCurrent = yaypanGroup.length > 0 ? yaypanGroup[yaypanGroup.length - 1] : depot;
-            furqatGroup = [];
-            while (fUnvisited.length > 0) {
-                let nearestIdx = 0, minCost = Infinity;
-                for (let i = 0; i < fUnvisited.length; i++) {
-                    let cost = routeCost(fCurrent, fUnvisited[i]);
-                    if (cost < minCost) { minCost = cost; nearestIdx = i; }
-                }
-                fCurrent = fUnvisited.splice(nearestIdx, 1)[0];
-                furqatGroup.push(fCurrent);
-            }
-        }
+        yaypanGroup = sortGroup(yaypanGroup, depot);
+        furqatGroup = sortGroup(furqatGroup, yaypanGroup.length ? yaypanGroup[yaypanGroup.length - 1] : depot);
 
-        // Birinchi bo'lib o'tiladigan Yaypan-Furqat-Naymancha guruhini shakllantirish
         let westLoopGroup = [...yaypanGroup, ...furqatGroup];
-        if (naymanchaNode) {
-            westLoopGroup.push(naymanchaNode);
-        }
+        if (naymanchaNode) westLoopGroup.push(naymanchaNode);
 
-        let path = [depot];
-        let current = depot;
+        let path = [depot, ...westLoopGroup];
+        let current = path[path.length - 1];
 
-        // HAR DOIM BIRINCHI: Yaypan va uning atrofi mavjud bo'lsa, depodan birdaniga shu yerga boriladi
-        if (westLoopGroup.length > 0) {
-            path.push(...westLoopGroup);
-            current = westLoopGroup[westLoopGroup.length - 1];
-        }
+        normalGroup = sortGroup(normalGroup, current);
+        path.push(...normalGroup);
+        if (normalGroup.length) current = normalGroup[normalGroup.length - 1];
 
-        // KEYINGI: Boshqa tumanlar nuqtalari
-        let unvisited = normalGroup.slice();
-        while (unvisited.length > 0) {
-            let nearestIdx = 0, minCost = Infinity;
-            for (let i = 0; i < unvisited.length; i++) {
-                let cost = routeCost(current, unvisited[i]);
-                if (cost < minCost) { minCost = cost; nearestIdx = i; }
-            }
-            current = unvisited.splice(nearestIdx, 1)[0];
-            path.push(current);
-        }
-
-        // ENG OXIRIDA: Qo'qon shahri ichki nuqtalari (Koppon, Navoiy Marvarid va h.k.)
-        if (endCityGroup.length > 0) {
-            let endCityUnvisited = endCityGroup.slice();
-            while (endCityUnvisited.length > 0) {
-                let nearestIdx = 0, minCost = Infinity;
-                for (let i = 0; i < endCityUnvisited.length; i++) {
-                    let cost = routeCost(current, endCityUnvisited[i]);
-                    if (cost < minCost) { minCost = cost; nearestIdx = i; }
-                }
-                current = endCityUnvisited.splice(nearestIdx, 1)[0];
-                path.push(current);
-            }
-        }
+        endCityGroup = sortGroup(endCityGroup, current);
+        path.push(...endCityGroup);
 
         return path;
     }
 
     const findByToken = tok => {
+        if (!tok) return null;
         const t = tok.trim(); if(!t) return null;
         return /^\d+$/.test(t) ? DB.find(a=>a.oldId===t||a.newId===t) : DB.find(a=>norm(a.name).includes(norm(t)));
     };
 
-    async function buildRoute(){
-        const b = $('buildBtn'); b.textContent = "Optimal marshrut tuzilmoqda..."; b.disabled = true;
-        const tokens = $('idInput').value.split(/[,\n;]+|\s{1,}/).map(s=>s.trim()).filter(Boolean);
-        const found=[], missing=[], seen = new Set();
+    function parseInputLines(inputText) {
+        if (!inputText) return { found: [], missing: [] };
+        const lines = inputText.split(/\r?\n/), parsedMap = new Map(), missing = [];
 
-        tokens.forEach(tok => {
-            const item = findByToken(tok);
-            if(item && item.oldId !== currentStartNode.oldId && !seen.has(item.oldId)){
-                seen.add(item.oldId); found.push({...item, done:false, note:""});
-            } else if(!item) missing.push(tok);
+        lines.forEach(line => {
+            const tokens = line.trim().split(/[\t\s,;]+/).filter(Boolean);
+            if (!tokens.length) return;
+
+            let targetItem = null, targetTokenIndex = -1;
+            for (let i = 0; i < tokens.length; i++) {
+                const item = findByToken(tokens[i]);
+                if (item && item.oldId !== currentStartNode.oldId) {
+                    targetItem = item; targetTokenIndex = i; break;
+                }
+            }
+
+            if (targetItem) {
+                const noteText = tokens.filter((_, idx) => idx !== targetTokenIndex).join(" ");
+                if (parsedMap.has(targetItem.oldId)) {
+                    if (noteText) parsedMap.get(targetItem.oldId).notes.push(noteText);
+                } else {
+                    parsedMap.set(targetItem.oldId, { item: targetItem, notes: noteText ? [noteText] : [] });
+                }
+            } else {
+                tokens.forEach(tok => { if (/^\d{5}$/.test(tok) && !missing.includes(tok)) missing.push(tok); });
+            }
         });
 
-        $('errBox').innerHTML = missing.length ? `<div class="error-box">Topilmadi: ${missing.join(", ")}</div>` : "";
-        if(!found.length){ route=[]; renderAll(); b.textContent = "Optimal Marshrut tuz"; b.disabled = false; return; }
+        return {
+            found: Array.from(parsedMap.values()).map(o => ({ ...o.item, done: false, note: o.notes.join(", ") })),
+            missing
+        };
+    }
+
+    async function buildRoute(){
+        const b = $('buildBtn'); 
+        if(b) { b.textContent = "Optimal marshrut tuzilmoqda..."; b.disabled = true; }
+        
+        const rawText = $('idInput')?.value || '';
+        const { found, missing } = parseInputLines(rawText);
+
+        if($('errBox')) $('errBox').innerHTML = missing.length ? `<div class="error-box">Topilmadi: ${missing.join(", ")}</div>` : "";
+        if(!found.length){ 
+            route=[]; renderAll(); 
+            if(b) { b.textContent = "Optimal Marshrut tuz"; b.disabled = false; }
+            return; 
+        }
 
         const wC = found.filter(a=>a.hasCoords), nC = found.filter(a=>!a.hasCoords);
         let optimizedNodes = solve2OptTSP([currentStartNode, ...wC]);
@@ -440,50 +370,50 @@
 
         route = [
             {...currentStartNode, done:false, isDepot:true, isStartDepot:true, note:""},
-            ...optimizedNodes,
-            ...nC.map(a=>({...a,done:false,note:""})),
+            ...optimizedNodes.map(node => ({...node, done:false, note: found.find(f => f.oldId === node.oldId)?.note || ""})),
+            ...nC.map(a=>({...a,done:false,note:a.note||""})),
             {...currentStartNode, oldId: currentStartNode.oldId+"_END", name: currentStartNode.name+" (Qaytish)", done:false, isDepot:true, isReturnDepot:true, note:""}
         ];
 
         saveState(); renderAll(); toggleControls(true);
-        b.textContent = "Optimal Marshrut tuz"; b.disabled = false;
+        if(b) { b.textContent = "Optimal Marshrut tuz"; b.disabled = false; }
     }
 
     function quickAdd(){
-        const inp = $('quickAddInput'), tokens = inp.value.trim().split(/[,\n;]+|\s{1,}/).map(s=>s.trim()).filter(Boolean);
+        const inp = $('quickAddInput'); if (!inp) return;
+        const { found } = parseInputLines(inp.value);
         let added = 0;
-        tokens.forEach(tok => {
-            const item = findByToken(tok);
-            if(!item || route.some(r=>r.oldId===item.oldId)) return;
-            route.splice(route.length > 0 && route[route.length-1].isReturnDepot ? route.length - 1 : route.length, 0, {...item, done:false, justAdded:true, note:""});
-            added++;
+
+        found.forEach(item => {
+            const idx = route.findIndex(r => r.oldId === item.oldId);
+            if (idx !== -1) {
+                if (item.note) { route[idx].note = route[idx].note ? `${route[idx].note}, ${item.note}` : item.note; added++; }
+            } else {
+                route.splice(route.length > 0 && route[route.length-1].isReturnDepot ? route.length - 1 : route.length, 0, {...item, done:false, justAdded:true});
+                added++;
+            }
         });
-        if(added) { showToast(`✓ ${added} ta qo‘shildi`); saveState(); renderAll(); inp.value=""; }
+
+        if(added) { showToast(`✓ ${added} ta o‘zgarish qo‘shildi`); saveState(); renderAll(); inp.value=""; }
     }
 
     function moveAnimated(idx, dir){
         const t = idx + dir;
         if(t < 1 || t >= route.length || route[t].isDepot) return;
-        const cards = document.querySelectorAll('.stopcard');
-        if(cards[idx]) cards[idx].classList.add('moved-active');
-        if(cards[t]) cards[t].classList.add('moved-active');
-
-        setTimeout(() => {
-            [route[idx], route[t]] = [route[t], route[idx]];
-            saveState(); renderAll();
-        }, 160);
+        [route[idx], route[t]] = [route[t], route[idx]];
+        saveState(); renderAll();
     }
 
     const toggleDone = idx => { route[idx].done = !route[idx].done; saveState(); renderAll(); };
     const removeStop = idx => { route.splice(idx,1); saveState(); renderAll(); };
     const updateNote = (idx, val) => { route[idx].note = val; saveState(); };
 
-    const toggleHistoryContent = () => { $('historyArrow').textContent = $('historyContent').classList.toggle('open') ? "▲" : "▼"; };
-    const openSaveModal = () => { if(!route.length) return alert("Marshrut yo'q!"); $('saveRouteNameInput').value = "Marshrut " + new Date().toLocaleDateString('uz-UZ', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); $('saveModal').classList.add('open'); };
-    const closeSaveModal = () => $('saveModal').classList.remove('open');
+    const toggleHistoryContent = () => { if($('historyContent')) $('historyArrow').textContent = $('historyContent').classList.toggle('open') ? "▲" : "▼"; };
+    const openSaveModal = () => { if(!route.length) return alert("Marshrut yo'q!"); $('saveRouteNameInput').value = "Marshrut " + new Date().toLocaleDateString('uz-UZ'); $('saveModal').classList.add('open'); };
+    const closeSaveModal = () => $('saveModal')?.classList.remove('open');
 
     function confirmSaveRoute(){
-        const name = $('saveRouteNameInput').value.trim(); if(!name) return;
+        const name = $('saveRouteNameInput')?.value.trim(); if(!name) return;
         const history = getHistory();
         history.unshift({ id: Date.now().toString(), name, date: new Date().toLocaleDateString('uz-UZ'), count: route.filter(r=>!r.isDepot).length, data: route });
         localStorage.setItem('qoqon_routes_history', JSON.stringify(history));
@@ -505,8 +435,9 @@
     }
 
     function renderHistory(){
-        const history = getHistory(); $('historyWrapper').style.display = history.length ? 'block' : 'none';
-        $('historyList').innerHTML = history.map(i => `
+        const history = getHistory();
+        if($('historyWrapper')) $('historyWrapper').style.display = history.length ? 'block' : 'none';
+        if($('historyList')) $('historyList').innerHTML = history.map(i => `
             <div class="history-item">
                 <div><b>${i.name}</b><br><small style="color:var(--ink-dim)">${i.date} • ${i.count} ta nuqta</small></div>
                 <div><button class="btn btn-ghost btn-sm" onclick="loadFromHistory('${i.id}')">Yuklash</button><button class="iconbtn danger" style="padding:4px 8px;" onclick="deleteFromHistory('${i.id}')">✕</button></div>
@@ -514,20 +445,20 @@
     }
 
     const fmtKm = km => km < 1 ? Math.round(km*1000)+" m" : km.toFixed(1)+" km";
-    const toggleControls = show => ['tabs','summary','quickAddBar'].forEach(id => $(id).style.display = show ? 'flex' : 'none');
+    const toggleControls = show => ['tabs','summary','quickAddBar'].forEach(id => { if($(id)) $(id).style.display = show ? 'flex' : 'none'; });
 
     function renderAll(){ renderList(); renderSummary(); renderHistory(); updateNavLinks(); if(map) renderMap(); }
 
     function renderSummary(){
         if(!route.length) return;
         let dist = calculateTotalDistance(route.filter(r=>r.hasCoords));
-        $('sumDone').textContent = `${route.filter(r=>r.done && !r.isDepot).length}/${route.filter(r=>!r.isDepot).length}`;
-        $('sumDist').textContent = fmtKm(dist);
-        $('sumTime').textContent = Math.round(dist/35*60)+" d";
+        if($('sumDone')) $('sumDone').textContent = `${route.filter(r=>r.done && !r.isDepot).length}/${route.filter(r=>!r.isDepot).length}`;
+        if($('sumDist')) $('sumDist').textContent = fmtKm(dist);
+        if($('sumTime')) $('sumTime').textContent = Math.round(dist/35*60)+" d";
     }
 
     function renderList(){
-        const el = $('listView');
+        const el = $('listView'); if(!el) return;
         if(!route.length) return el.innerHTML = `<div style="text-align:center;color:var(--ink-dim);padding:40px;">Marshrut tuzilmagan.</div>`;
         el.innerHTML = route.map((s, i) => `
             <div class="stop">
@@ -537,16 +468,13 @@
                     ${i<route.length-1?'<div class="thread"></div>':''}
                 </div>
                 <div class="stopcard ${s.done?'done':''}">
-                    ${!s.isDepot ? `<button class="remove-btn-top" onclick="removeStop(${i})" title="O'chirish">✕</button>` : ''}
+                    ${!s.isDepot ? `<button class="remove-btn-top" onclick="removeStop(${i})">✕</button>` : ''}
                     <div class="card-content">
-                        <div class="name">${s.name} ${s.region?`<span class="badge-region">${s.region}</span>`:''}${s.justAdded?'<span class="badge-new">YANGI</span>':''}${!s.hasCoords?'<span class="badge-nocoord">NO-COORD</span>':''}</div>
+                        <div class="name">${s.name} ${s.region?`<span class="badge-region">${s.region}</span>`:''}</div>
                         <div class="ids mono">eski: ${s.oldId} • yangi: ${s.newId}</div>
-                        <div class="comment-box"><input type="text" class="comment-input" placeholder="Izoh kiritish..." value="${s.note||''}" oninput="updateNote(${i}, this.value)"></div>
+                        <div class="comment-box"><input type="text" class="comment-input" placeholder="Izoh..." value="${s.note||''}" oninput="updateNote(${i}, this.value)"></div>
                         <div class="actionrow">
-                            ${s.hasCoords ? `
-                                <a class="navlink" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank">Google Nav</a>
-                                <a class="navlink yandex" href="yandexnavi://build_route_on_map?lat_to=${s.lat}&lon_to=${s.lng}" target="_blank">Yandex Nav</a>
-                            ` : ''}
+                            ${s.hasCoords ? `<a class="navlink" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank">Google Nav</a>` : ''}
                             ${!s.isDepot ? `<button class="donetoggle ${s.done?'on':''}" onclick="toggleDone(${i})">${s.done?'✓ Bajarildi':'Bajarildi?'}</button>` : ''}
                         </div>
                     </div>
@@ -562,13 +490,10 @@
     function updateNavLinks() {
         const valid = route.filter(r => r.hasCoords);
         if(valid.length < 2) return;
-
-        const origin = `${valid[0].lat},${valid[0].lng}`;
-        const destination = `${valid[valid.length-1].lat},${valid[valid.length-1].lng}`;
+        const origin = `${valid[0].lat},${valid[0].lng}`, destination = `${valid[valid.length-1].lat},${valid[valid.length-1].lng}`;
         const waypoints = valid.slice(1, -1).map(v => `${v.lat},${v.lng}`).join('|');
-
-        $('navAllBtnG').href = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`;
-        $('navAllBtnY').href = `yandexnavi://build_route_on_map?lat_from=${valid[0].lat}&lon_from=${valid[0].lng}&lat_to=${valid[valid.length-1].lat}&lon_to=${valid[valid.length-1].lng}`;
+        if($('navAllBtnG')) $('navAllBtnG').href = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`;
+        if($('navAllBtnY')) $('navAllBtnY').href = `yandexnavi://build_route_on_map?lat_from=${valid[0].lat}&lon_from=${valid[0].lng}&lat_to=${valid[valid.length-1].lat}&lon_to=${valid[valid.length-1].lng}`;
     }
 
     function ensureMap(){
@@ -583,8 +508,7 @@
         const pts = route.filter(s=>s.hasCoords), latlngs = pts.map(s=>[s.lat,s.lng]);
         pts.forEach(s => {
             const idx = route.indexOf(s), cls = s.isDepot ? "depot" : (s.done?"done":"");
-            const label = s.isStartDepot ? "🏦" : (s.isReturnDepot ? "🏁" : idx);
-            L.marker([s.lat,s.lng], {icon: L.divIcon({className:'', html:`<div class="pin ${cls}"><span>${label}</span></div>`, iconSize:[28,28]})}).addTo(markersLayer).bindPopup(`<b>${s.name}</b><br><small>${s.region}</small>`);
+            L.marker([s.lat,s.lng], {icon: L.divIcon({className:'', html:`<div class="pin ${cls}"><span>${s.isStartDepot ? "🏦" : (s.isReturnDepot ? "🏁" : idx)}</span></div>`, iconSize:[28,28]})}).addTo(markersLayer).bindPopup(`<b>${s.name}</b>`);
         });
 
         if(polyline) polyline.remove();
@@ -593,27 +517,31 @@
     }
 
     function showToast(msg){
-        const t = $('toast'); t.textContent = msg; t.classList.add('show');
+        const t = $('toast'); if(!t) return;
+        t.textContent = msg; t.classList.add('show');
         setTimeout(()=>t.classList.remove('show'), 1600);
     }
 
     function clearRoute(){
         if(route.length && confirm("Tozalaninsinmi?")){
             route=[]; localStorage.removeItem("qoqon_route_current");
-            $('idInput').value=""; renderAll(); toggleControls(false); showToast("🗑 Tozalandi");
+            if($('idInput')) $('idInput').value=""; 
+            renderAll(); toggleControls(false); showToast("🗑 Tozalandi");
         }
     }
 
     function switchTab(t){
-        $('tabList').classList.toggle('active', t==='list'); $('tabMap').classList.toggle('active', t==='map');
-        $('listView').style.display = t==='list' ? 'block':'none'; $('mapView').style.display = t==='map' ? 'block':'none';
+        if($('tabList')) $('tabList').classList.toggle('active', t==='list'); 
+        if($('tabMap')) $('tabMap').classList.toggle('active', t==='map');
+        if($('listView')) $('listView').style.display = t==='list' ? 'block':'none'; 
+        if($('mapView')) $('mapView').style.display = t==='map' ? 'block':'none';
         if(t==='map') setTimeout(()=>{ ensureMap(); map.invalidateSize(); renderMap(); }, 30);
     }
 
     function copyRoute(){
         if(!route.length) return;
         let txt = "Qo‘qon marshruti — " + new Date().toLocaleDateString('uz-UZ') + "\n";
-        route.forEach((s,i)=>{ txt += `${s.isDepot?'🏦':i+'.'} ${s.name} (yangi:${s.newId}, eski:${s.oldId}) ${s.note?'['+s.note+']':''}\n`; });
+        route.forEach((s,i)=>{ txt += `${s.isDepot?'🏦':i+'.'} ${s.name} (${s.newId}) ${s.note?'['+s.note+']':''}\n`; });
         navigator.clipboard ? navigator.clipboard.writeText(txt).then(()=>showToast("Nusxalandi!")) : prompt("Nusxalash:", txt);
     }
 
@@ -624,10 +552,16 @@
             if(raw){ route = JSON.parse(raw); if(route.length) toggleControls(true); }
         }catch{}
     }
-    function resetDay(){ if(confirm("Yangi kun boshlansinmi?")){ localStorage.removeItem("qoqon_route_current"); route=[]; renderAll(); toggleControls(false); } }
+    function resetDay(){ 
+        if(confirm("Yangi kun boshlansinmi?")){ 
+            localStorage.removeItem("qoqon_route_current"); route=[]; renderAll(); toggleControls(false); 
+        } 
+    }
 
-    $('dateLabel').textContent = new Date().toLocaleDateString('uz-UZ', {weekday:'long', day:'numeric', month:'long'});
-    loadState(); renderAll();
+    window.addEventListener('DOMContentLoaded', () => {
+        if($('dateLabel')) $('dateLabel').textContent = new Date().toLocaleDateString('uz-UZ', {weekday:'long', day:'numeric', month:'long'});
+        loadState(); renderAll();
+    });
 </script>
 </body>
 </html>

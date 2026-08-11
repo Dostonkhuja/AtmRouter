@@ -22,14 +22,23 @@ textarea:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px var(--
 .primary{flex:1;background:var(--green);color:white}.ghost{background:var(--green2);color:var(--green)}.danger{background:var(--red2);color:var(--red)}
 button:disabled{opacity:.45;cursor:not-allowed}
 .hint{font-size:10px;color:var(--muted);margin-top:5px}
-.quick{display:flex;padding:5px;gap:5px}.quick input{min-width:0;flex:1;border:0;outline:0;padding:7px 9px;background:transparent;font-size:13px}
+
+/* Quick Add tuzatildi va qulaylashtirildi */
+.quick{display:flex;padding:6px;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px}
+.quick input{flex:1;border:0;outline:0;padding:6px 8px;font-size:13px;background:transparent}
+.quick button{background:var(--green2);color:var(--green);border:0;border-radius:8px;padding:7px 12px;font-weight:650;font-size:12px}
+
 .tabs{display:flex;margin:8px 10px;padding:3px;background:#e4e4e9;border-radius:10px}.tab{flex:1;text-align:center;padding:7px;border-radius:8px;font-size:12px;font-weight:650}.tab.active{background:#fff;box-shadow:0 1px 5px #00000018}
 .summary{display:flex;align-items:center;padding:8px 10px;gap:8px}.stat{flex:1}.stat b{font-size:14px;display:block}.stat span{font-size:9px;color:var(--muted)}.sum-actions{display:flex;gap:4px}.square{padding:7px 8px}
 #list{padding:0 10px}.stop{display:grid;grid-template-columns:27px 1fr;gap:7px;position:relative;margin-bottom:7px}.rail{display:flex;flex-direction:column;align-items:center}.seq{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:#fff;font-size:10px;font-weight:750;z-index:1}.seq.depot{background:var(--amber)}.seq.done{background:var(--ok)}.rail:after{content:"";width:1px;background:#d2d2d7;flex:1;margin-top:3px}.stop:last-child .rail:after{display:none}
 .stopcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 10px;box-shadow:var(--shadow);min-width:0}.stopcard.done{background:#f0fbf3;border-color:#b9e8c5}.name{font-size:13px;font-weight:650;line-height:1.25;padding-right:20px}.ids{font:10px ui-monospace,SFMono-Regular,monospace;color:var(--muted);margin-top:2px}.badge{font-size:8px;padding:2px 4px;border-radius:4px;background:#eee;margin-left:3px}.badge.new{background:var(--amber);color:#fff}.badge.bad{background:var(--red);color:#fff}
 .note{margin-top:6px;width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;outline:0;background:#fafafd}
 .actions{display:flex;gap:4px;align-items:center;margin-top:6px;flex-wrap:wrap}.mini{border:0;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:650;background:var(--green2);color:var(--green);text-decoration:none}.mini.y{background:#fff1f1;color:#d00}.done{margin-left:auto;border:1px solid var(--green);border-radius:7px;background:#fff;color:var(--green);padding:5px 8px;font-size:10px;font-weight:650}.done.on{background:var(--ok);border-color:var(--ok);color:#fff}
-.remove{position:absolute;right:7px;top:7px;width:22px;height:22px;border:0;border-radius:50%;background:#f1f1f4;color:#888;font-size:11px}.moves{display:flex;gap:3px;margin-left:auto}.move{border:0;background:#f1f1f4;border-radius:6px;width:24px;height:22px;font-size:10px}
+.remove{position:absolute;right:7px;top:7px;width:22px;height:22px;border:0;border-radius:50%;background:#f1f1f4;color:#888;font-size:11px}
+.moves{display:flex;gap:3px;margin-left:4px}
+.move{border:0;background:#f1f1f4;border-radius:6px;width:24px;height:22px;font-size:10px;font-weight:700;color:#333;display:grid;place-items:center}
+.move:active{background:#ddd}
+
 #mapView{display:none;padding:0 10px}#map{height:55dvh;border-radius:14px;border:1px solid var(--line);overflow:hidden}.mapBtns{display:grid;gap:6px;margin-top:7px}.mapBtns a{text-align:center}
 .history{overflow:hidden}.history-head{width:100%;border:0;background:#fff;padding:10px 12px;display:flex;justify-content:space-between;font-size:12px;font-weight:650}.history-body{display:none;padding:0 10px 7px}.history-body.open{display:block}.hist{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:8px 0;font-size:11px}.hist small{color:var(--muted)}
 .modal{position:fixed;inset:0;z-index:100;background:#0006;display:none;place-items:center;padding:20px}.modal.open{display:grid}.modal-card{width:min(100%,360px);background:#fff;border-radius:16px;padding:15px}.modal-card input{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px;outline:0;margin:7px 0 12px}
@@ -51,7 +60,12 @@ footer{text-align:center;color:var(--muted);font-size:9px;padding:12px}
 <div id="error"></div>
 </section>
 
-<div class="quick" id="quick" style="display:none"><input id="quickInput" placeholder="Yo‘lda ID qo‘shish..."><button class="btn ghost" id="quickBtn">+ Qo‘shish</button></div>
+<!-- Yo'lda ID qo'shish paneli to'liq ishlaydigan qilindi -->
+<div class="quick" id="quick" style="display:none">
+  <input id="quickInput" placeholder="Yo‘lda ID qo‘shish (masalan: 62614)...">
+  <button id="quickBtn" type="button">Qo‘shish</button>
+</div>
+
 <div class="tabs" id="tabs" style="display:none"><div class="tab active" id="listTab">Ro‘yxat</div><div class="tab" id="mapTab">Xarita</div></div>
 
 <div class="summary" id="summary" style="display:none">
@@ -77,9 +91,7 @@ footer{text-align:center;color:var(--muted);font-size:9px;padding:12px}
 "use strict";
 const $=id=>document.getElementById(id);
 
-// Gemini API key is kept on the proxy server, not in GitHub Pages.
-  // Set this to your deployed Cloudflare Worker URL.
-  const GEMINI_PROXY_URL="https://qoqon-gemini.sheraliyevdostonhoja.workers.dev";
+const GEMINI_PROXY_URL="https://qoqon-gemini.sheraliyevdostonhoja.workers.dev";
 const START="19765", SPEED=35;
 const STORE={route:"qoqon_route_current",history:"qoqon_routes_history"};
 
@@ -212,7 +224,7 @@ function rebuild(items){
  items.forEach(x=>{if(x.oldId!==START&&!unique.some(y=>y.oldId===x.oldId))unique.push(x)});
  const old={};route.forEach(x=>x.note&&(old[x.oldId]=x.note));
  const ordered=optimize([depot,...unique]).slice(1);
- route=[make(depot,{isDepot:true,isStartDepot:true}),...ordered.map(x=>make(x,{note:old[x.oldId]||notes[x.oldId]||"",justAdded:!!x.justAdded}),),make(depot,{oldId:START+"_END",isDepot:true,isReturnDepot:true,name:depot.name+" (Qaytish)"})];
+ route=[make(depot,{isDepot:true,isStartDepot:true}),...ordered.map(x=>make(x,{note:old[x.oldId]||notes[x.oldId]||"",justAdded:!!x.justAdded})),make(depot,{oldId:START+"_END",isDepot:true,isReturnDepot:true,name:depot.name+" (Qaytish)"})];
  saveState();render();
 }
 
@@ -221,13 +233,16 @@ function build(){
  try{let items=parse($("input").value);if(!items.length){route=[];render();return}rebuild(items)}
  finally{setBusy(false)}
 }
+
 function quickAdd(){
- let x=find($("quickInput").value);if(!x)return toast("ID topilmadi");
+ let val=$("quickInput").value.trim();if(!val)return;
+ let x=find(val);if(!x)return toast("ID topilmadi");
  if(x.oldId===START)return;
  let items=route.filter(x=>!x.isDepot).map(x=>DB.find(d=>d.oldId===x.oldId)).filter(Boolean);
  if(items.some(y=>y.oldId===x.oldId))return toast("Bu ID allaqachon bor");
- x={...x,justAdded:true};items.push(x);rebuild(items);$("quickInput").value="";toast("Marshrut qayta optimallashtirildi");
+ x={...x,justAdded:true};items.push(x);rebuild(items);$("quickInput").value="";toast("Yangi ID qo‘shildi");
 }
+
 function move(i,d){let j=i+d;if(j<1||j>=route.length-1)return;[route[i],route[j]]=[route[j],route[i]];saveState();render()}
 function toggleDone(i){route[i].done=!route[i].done;saveState();render()}
 function remove(i){route.splice(i,1);saveState();render()}
@@ -248,21 +263,10 @@ async function scan(file){
   const data=await file64(file);
   const prompt=`Siz bankomatlar jadvalidan vazifalarni aniq o‘qiydigan OCR yordamchisiz.
 Rasmdagi barcha haqiqiy 5 xonali bankomat IDlarini toping.
-Har bir IDning yonidagi barcha vazifalarni yozing: 410, 710, smart, dispenser, rider/ридер, чек, karta va boshqa yozuvlar.
-Juda muhim:
-1. Bir ID rasmda bir necha marta uchrasa, HAR BIR uchrashuvni saqlang. Keyin ularning vazifalari birlashtiriladi.
-2. ID yozilgan qatorning tagida ID takrorlanmasdan faqat "rider", "чек", "dispenser", "карта" yoki boshqa vazifa yozilgan bo‘lsa, uni eng yaqin yuqoridagi IDga tegishli deb oling.
-3. 410 yoki 710 yoki smart yozilgan joyning tagidagi davomiy vazifalarni tashlamang.
-4. Jadvaldagi tartib raqami 1,2,3... va "Итого" kabi yig‘indilarni bankomat ID deb qabul qilmang.
-5. Qo‘qon filiali / Kapitalbank filiali qatorini vazifa sifatida yozmang.
-6. O‘qigan so‘zingizni o‘zgartirmang. Masalan rider bo‘lsa rider, чек bo‘lsa чек. Noaniq bo‘lsa ham tashlab yubormang, o‘qilgan ko‘rinishda yozing.
-7. Har bir topilgan ID uchun bitta qatordan qaytaring. Takroriy IDlarni ham qaytaring.
-Faqat shu format:
+Har bir IDning yonidagi barcha vazifalarni yozing: 410, 710, smart, dispenser, rider va boshqalar.
+Faqat shu formatda qaytaring:
 62641 710 4-200
-62641 rider чек
 62614 дисп
-62598 410 dispenser
-35115 smart karta
 Hech qanday izoh bermang.`;
   const res=await fetch(GEMINI_PROXY_URL,{
    method:"POST",headers:{"Content-Type":"application/json"},
@@ -282,12 +286,14 @@ Hech qanday izoh bermang.`;
 
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const km=x=>x<1?Math.round(x*1000)+" m":x.toFixed(1)+" km";
+
 function render(){
  const has=route.length>0;
  $("tabs").style.display=has?"flex":"none";$("summary").style.display=has?"flex":"none";$("quick").style.display=has?"flex":"none";
  renderList();renderSummary();renderHistory();nav();
  if(map&&$("mapView").style.display!=="none")renderMap();
 }
+
 function renderList(){
  if(!route.length){$("list").innerHTML='<div style="text-align:center;color:var(--muted);padding:35px 10px;font-size:12px">Marshrut tuzilmagan</div>';return}
  $("list").innerHTML=route.map((s,i)=>{
@@ -297,31 +303,63 @@ function renderList(){
   <div class="name">${esc(s.name)}${s.justAdded?'<span class="badge new">YANGI</span>':""}</div>
   ${!s.isDepot?`<div class="ids">eski ${esc(s.oldId)} · yangi ${esc(s.newId)}</div>`:""}
   ${!s.isDepot?`<input class="note" value="${esc(s.note||"")}" placeholder="Vazifa / izoh..." oninput="note(${i},this.value)">`:""}
-  ${!s.isDepot?`<div class="actions">${s.hasCoords?`<a class="mini" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}">Google</a><a class="mini y" target="_blank" href="yandexnavi://build_route_on_map?lat_to=${s.lat}&lon_to=${s.lng}">Yandex</a>`:""}<div class="moves"><button class="move" onclick="move(${i},-1)" ${i===1?"disabled":""}>▲</button><button class="move" onclick="move(${i},1)" ${i===route.length-2?"disabled":""}>▼</button></div><button class="done ${s.done?"on":""}" onclick="toggleDone(${i})">${s.done?"✓ Bajarildi":"Bajarildi"}</button></div>`:""}
+  ${!s.isDepot?`<div class="actions">
+    ${s.hasCoords?`<a class="mini" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}">Google</a><a class="mini y" target="_blank" href="yandexnavi://build_route_on_map?lat_to=${s.lat}&lon_to=${s.lng}">Yandex</a>`:""}
+    <div class="moves">
+      <button class="move" onclick="move(${i},-1)" ${i===1?"disabled":""}>▲</button>
+      <button class="move" onclick="move(${i},1)" ${i===route.length-2?"disabled":""}>▼</button>
+    </div>
+    <button class="done ${s.done?"on":""}" onclick="toggleDone(${i})">${s.done?"✓ Bajarildi":"Bajarildi"}</button>
+  </div>`:""}
   </div></div>`
  }).join("");
 }
+
 function renderSummary(){
  let pts=route.filter(x=>x.hasCoords),d=0;for(let i=0;i<pts.length-1;i++)d+=dist(pts[i],pts[i+1]);
  let done=route.filter(x=>x.done&&!x.isDepot).length,total=route.filter(x=>!x.isDepot).length;
  $("doneStat").textContent=`${done}/${total}`;$("distStat").textContent=km(d);$("timeStat").textContent=Math.round(d/SPEED*60)+" d";
 }
+
 function nav(){
  let p=route.filter(x=>x.hasCoords);if(p.length<2)return;
  let o=p[0],z=p.at(-1),wp=p.slice(1,-1).map(x=>`${x.lat},${x.lng}`).join("|");
  $("googleAll").href=`https://www.google.com/maps/dir/?api=1&origin=${o.lat},${o.lng}&destination=${z.lat},${z.lng}&waypoints=${wp}&travelmode=driving`;
  $("yandexAll").href=`yandexnavi://build_route_on_map?lat_from=${o.lat}&lon_from=${o.lng}&lat_to=${z.lat}&lon_to=${z.lng}`;
 }
+
 function ensureMap(){if(map)return;map=L.map("map");L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(map);markers=L.layerGroup().addTo(map)}
+
 function renderMap(){
- ensureMap();markers.clearLayers();let p=route.filter(x=>x.hasCoords),ll=p.map(x=>[x.lat,x.lng]);
- p.forEach(s=>L.marker([s.lat,s.lng]).addTo(markers).bindPopup(`<b>${esc(s.name)}</b>${s.note?`<br>${esc(s.note)}`:""}`));
- if(line)line.remove();line=L.polyline(ll).addTo(map);if(ll.length)map.fitBounds(line.getBounds(),{padding:[20,20]});
+ ensureMap();
+ markers.clearLayers();
+ 
+ route.forEach((s, i)=>{
+  if(!s.hasCoords) return;
+  let label = s.isStartDepot ? "B" : s.isReturnDepot ? "Q" : String(i);
+  
+  // Custom raqamlangan marker ikonka
+  let icon = L.divIcon({
+   className: 'custom-map-marker',
+   html: `<div style="background:${s.isDepot?'#c97a22':'#16543f'};color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)">${label}</div>`,
+   iconSize: [26, 26],
+   iconAnchor: [13, 13]
+  });
+
+  L.marker([s.lat, s.lng], {icon}).addTo(markers).bindPopup(`<b>${label}. ${esc(s.name)}</b>${s.note?`<br>${esc(s.note)}`:""}`);
+ });
+
+ let p=route.filter(x=>x.hasCoords),ll=p.map(x=>[x.lat,x.lng]);
+ if(line)line.remove();
+ line=L.polyline(ll,{color:"#16543f",weight:4,opacity:0.8}).addTo(map);
+ if(ll.length)map.fitBounds(line.getBounds(),{padding:[20,20]});
 }
+
 function tab(name){
  let list=name==="list";$("listTab").classList.toggle("active",list);$("mapTab").classList.toggle("active",!list);$("list").style.display=list?"block":"none";$("mapView").style.display=list?"none":"block";
  if(!list)setTimeout(()=>{ensureMap();map.invalidateSize();renderMap()},50);
 }
+
 function saveState(){localStorage.setItem(STORE.route,JSON.stringify(route))}
 function loadState(){try{let x=JSON.parse(localStorage.getItem(STORE.route));if(Array.isArray(x)&&x.length)route=x}catch{}}
 function history(){try{return JSON.parse(localStorage.getItem(STORE.history))||[]}catch{return[]}}
@@ -337,7 +375,9 @@ function reset(){if(confirm("Yangi kun boshlansinmi?")){route=[];$("input").valu
 
 $("date").textContent=new Date().toLocaleDateString("uz-UZ",{weekday:"long",day:"numeric",month:"long"});
 $("upload").onclick=()=>$("file").click();$("file").onchange=e=>scan(e.target.files[0]);
-$("build").onclick=build;$("quickBtn").onclick=quickAdd;$("quickInput").onkeydown=e=>e.key==="Enter"&&quickAdd();
+$("build").onclick=build;
+$("quickBtn").onclick=quickAdd;
+$("quickInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();quickAdd();}};
 $("listTab").onclick=()=>tab("list");$("mapTab").onclick=()=>tab("map");$("clear").onclick=clear;$("reset").onclick=reset;$("copy").onclick=copyRoute;
 $("historyToggle").onclick=()=>{$("historyBody").classList.toggle("open");$("arrow").textContent=$("historyBody").classList.contains("open")?"▲":"▼"};
 $("save").onclick=()=>{$("routeName").value="Marshrut "+new Date().toLocaleDateString("uz-UZ");$("modal").classList.add("open")};

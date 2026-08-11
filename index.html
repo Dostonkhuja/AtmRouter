@@ -77,7 +77,9 @@ footer{text-align:center;color:var(--muted);font-size:9px;padding:12px}
 "use strict";
 const $=id=>document.getElementById(id);
 
-const GEMINI_API_KEY="AQ.Ab8RN6I6EstcikR3zDBWsMydSorga-srsGzV4S7SxXDxV3NKkQ";
+// Gemini API key is kept on the proxy server, not in GitHub Pages.
+  // Set this to your deployed Cloudflare Worker URL.
+  const GEMINI_PROXY_URL="https://qoqon-gemini.sheraliyevdostonhoja.workers.dev";
 const START="19765", SPEED=35;
 const STORE={route:"qoqon_route_current",history:"qoqon_routes_history"};
 
@@ -262,8 +264,8 @@ Faqat shu format:
 62598 410 dispenser
 35115 smart karta
 Hech qanday izoh bermang.`;
-  const res=await fetch("https://generativelanguage.googleapis.com/v1beta/interactions",{
-   method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":GEMINI_API_KEY},
+  const res=await fetch(GEMINI_PROXY_URL,{
+   method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({model:"gemini-3.6-flash",input:[
     {type:"text",text:prompt},
     {type:"image",mime_type:file.type||"image/jpeg",data}

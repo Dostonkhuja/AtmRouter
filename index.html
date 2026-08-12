@@ -23,21 +23,25 @@ textarea:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px var(--
 button:disabled{opacity:.45;cursor:not-allowed}
 .hint{font-size:10px;color:var(--muted);margin-top:5px}
 
-/* Quick Add tuzatildi va qulaylashtirildi */
 .quick{display:flex;padding:6px;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px}
 .quick input{flex:1;border:0;outline:0;padding:6px 8px;font-size:13px;background:transparent}
 .quick button{background:var(--green2);color:var(--green);border:0;border-radius:8px;padding:7px 12px;font-weight:650;font-size:12px}
 
 .tabs{display:flex;margin:8px 10px;padding:3px;background:#e4e4e9;border-radius:10px}.tab{flex:1;text-align:center;padding:7px;border-radius:8px;font-size:12px;font-weight:650}.tab.active{background:#fff;box-shadow:0 1px 5px #00000018}
 .summary{display:flex;align-items:center;padding:8px 10px;gap:8px}.stat{flex:1}.stat b{font-size:14px;display:block}.stat span{font-size:9px;color:var(--muted)}.sum-actions{display:flex;gap:4px}.square{padding:7px 8px}
-#list{padding:0 10px}.stop{display:grid;grid-template-columns:27px 1fr;gap:7px;position:relative;margin-bottom:7px}.rail{display:flex;flex-direction:column;align-items:center}.seq{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:#fff;font-size:10px;font-weight:750;z-index:1}.seq.depot{background:var(--amber)}.seq.done{background:var(--ok)}.rail:after{content:"";width:1px;background:#d2d2d7;flex:1;margin-top:3px}.stop:last-child .rail:after{display:none}
-.stopcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 10px;box-shadow:var(--shadow);min-width:0}.stopcard.done{background:#f0fbf3;border-color:#b9e8c5}.name{font-size:13px;font-weight:650;line-height:1.25;padding-right:20px}.ids{font:10px ui-monospace,SFMono-Regular,monospace;color:var(--muted);margin-top:2px}.badge{font-size:8px;padding:2px 4px;border-radius:4px;background:#eee;margin-left:3px}.badge.new{background:var(--amber);color:#fff}.badge.bad{background:var(--red);color:#fff}
+#list{padding:0 10px}
+.stop{display:grid;grid-template-columns:27px 1fr;gap:7px;position:relative;margin-bottom:7px;transition:transform 0.2s ease, opacity 0.2s ease}
+.stop.moved{animation:pulseCard 0.4s ease}
+@keyframes pulseCard{0%{transform:scale(1);background-color:transparent}50%{transform:scale(1.02);background-color:var(--green2)}100%{transform:scale(1);background-color:transparent}}
+
+.rail{display:flex;flex-direction:column;align-items:center}.seq{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:#fff;font-size:10px;font-weight:750;z-index:1;transition:background 0.2s}.seq.depot{background:var(--amber)}.seq.done{background:var(--ok)}.rail:after{content:"";width:1px;background:#d2d2d7;flex:1;margin-top:3px}.stop:last-child .rail:after{display:none}
+.stopcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 10px;box-shadow:var(--shadow);min-width:0;transition:border-color 0.2s, background-color 0.2s}.stopcard.done{background:#f0fbf3;border-color:#b9e8c5}.name{font-size:13px;font-weight:650;line-height:1.25;padding-right:20px}.ids{font:10px ui-monospace,SFMono-Regular,monospace;color:var(--muted);margin-top:2px}.badge{font-size:8px;padding:2px 4px;border-radius:4px;background:#eee;margin-left:3px}.badge.new{background:var(--amber);color:#fff}.badge.bad{background:var(--red);color:#fff}
 .note{margin-top:6px;width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;outline:0;background:#fafafd}
 .actions{display:flex;gap:4px;align-items:center;margin-top:6px;flex-wrap:wrap}.mini{border:0;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:650;background:var(--green2);color:var(--green);text-decoration:none}.mini.y{background:#fff1f1;color:#d00}.done{margin-left:auto;border:1px solid var(--green);border-radius:7px;background:#fff;color:var(--green);padding:5px 8px;font-size:10px;font-weight:650}.done.on{background:var(--ok);border-color:var(--ok);color:#fff}
 .remove{position:absolute;right:7px;top:7px;width:22px;height:22px;border:0;border-radius:50%;background:#f1f1f4;color:#888;font-size:11px}
 .moves{display:flex;gap:3px;margin-left:4px}
-.move{border:0;background:#f1f1f4;border-radius:6px;width:24px;height:22px;font-size:10px;font-weight:700;color:#333;display:grid;place-items:center}
-.move:active{background:#ddd}
+.move{border:0;background:#f1f1f4;border-radius:6px;width:24px;height:22px;font-size:10px;font-weight:700;color:#333;display:grid;place-items:center;transition:background 0.15s, transform 0.1s}
+.move:active{background:var(--green);color:#fff;transform:scale(0.9)}
 
 #mapView{display:none;padding:0 10px}#map{height:55dvh;border-radius:14px;border:1px solid var(--line);overflow:hidden}.mapBtns{display:grid;gap:6px;margin-top:7px}.mapBtns a{text-align:center}
 .history{overflow:hidden}.history-head{width:100%;border:0;background:#fff;padding:10px 12px;display:flex;justify-content:space-between;font-size:12px;font-weight:650}.history-body{display:none;padding:0 10px 7px}.history-body.open{display:block}.hist{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:8px 0;font-size:11px}.hist small{color:var(--muted)}
@@ -54,13 +58,12 @@ footer{text-align:center;color:var(--muted);font-size:9px;padding:12px}
 <section class="card">
 <div class="label">ID va vazifalar</div>
 <textarea id="input" placeholder="62641 710 4-200&#10;62614 дисп&#10;62598 410"></textarea>
-<div class="hint">Rasmda bir ID bir necha marta uchrasa, barcha vazifalar bitta kommentga birlashtiriladi.</div>
+<div class="hint">Rasmda bir ID bir necha marta uchrasa, barcha vazifalar bitta kommentga birlashtiriladi. Shuningdek, ID va izohlarni qo‘lda yozib kiritishingiz mumkin.</div>
 <input id="file" type="file" accept="image/*" hidden>
 <div class="row"><button class="btn ghost" id="upload">Rasm o‘qish</button><button class="btn primary" id="build">Optimal marshrut</button></div>
 <div id="error"></div>
 </section>
 
-<!-- Yo'lda ID qo'shish paneli to'liq ishlaydigan qilindi -->
 <div class="quick" id="quick" style="display:none">
   <input id="quickInput" placeholder="Yo‘lda ID qo‘shish (masalan: 62614)...">
   <button id="quickBtn" type="button">Qo‘shish</button>
@@ -213,6 +216,9 @@ function parse(text){
     if(note)notes[item.oldId]=[...(notes[item.oldId]||[]),note];
     if(!ids.some(x=>x.oldId===item.oldId))ids.push(item);
    }
+  } else {
+   let item=find(line);
+   if(item&&!ids.some(x=>x.oldId===item.oldId))ids.push(item);
   }
  });
  Object.keys(notes).forEach(k=>notes[k]=notes[k].join(" • "));
@@ -243,7 +249,17 @@ function quickAdd(){
  x={...x,justAdded:true};items.push(x);rebuild(items);$("quickInput").value="";toast("Yangi ID qo‘shildi");
 }
 
-function move(i,d){let j=i+d;if(j<1||j>=route.length-1)return;[route[i],route[j]]=[route[j],route[i]];saveState();render()}
+function move(i,d){
+ let j=i+d;if(j<1||j>=route.length-1)return;
+ [route[i],route[j]]=[route[j],route[i]];
+ saveState();
+ render();
+ setTimeout(()=>{
+  let el=document.getElementById(`stop-${j}`);
+  if(el){el.classList.add('moved');setTimeout(()=>el.classList.remove('moved'),400)}
+ },50);
+}
+
 function toggleDone(i){route[i].done=!route[i].done;saveState();render()}
 function remove(i){route.splice(i,1);saveState();render()}
 function note(i,v){if(route[i]){route[i].note=v;saveState()}}
@@ -298,7 +314,7 @@ function renderList(){
  if(!route.length){$("list").innerHTML='<div style="text-align:center;color:var(--muted);padding:35px 10px;font-size:12px">Marshrut tuzilmagan</div>';return}
  $("list").innerHTML=route.map((s,i)=>{
   let seq=s.isStartDepot?"B":s.isReturnDepot?"Q":i,cl=s.isDepot?"depot":s.done?"done":"";
-  return `<div class="stop"><div class="rail"><div class="seq ${cl}">${seq}</div></div><div class="stopcard ${s.done?"done":""}">
+  return `<div class="stop" id="stop-${i}"><div class="rail"><div class="seq ${cl}">${seq}</div></div><div class="stopcard ${s.done?"done":""}">
   ${!s.isDepot?`<button class="remove" onclick="remove(${i})">×</button>`:""}
   <div class="name">${esc(s.name)}${s.justAdded?'<span class="badge new">YANGI</span>':""}</div>
   ${!s.isDepot?`<div class="ids">eski ${esc(s.oldId)} · yangi ${esc(s.newId)}</div>`:""}
@@ -338,7 +354,6 @@ function renderMap(){
   if(!s.hasCoords) return;
   let label = s.isStartDepot ? "B" : s.isReturnDepot ? "Q" : String(i);
   
-  // Custom raqamlangan marker ikonka
   let icon = L.divIcon({
    className: 'custom-map-marker',
    html: `<div style="background:${s.isDepot?'#c97a22':'#16543f'};color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)">${label}</div>`,
@@ -369,7 +384,13 @@ function renderHistory(){
 window.loadHist=id=>{let x=history().find(y=>y.id===id);if(x&&confirm("Marshrut almashtirilsinmi?")){route=x.data;saveState();render()}};
 window.delHist=id=>{localStorage.setItem(STORE.history,JSON.stringify(history().filter(x=>x.id!==id)));renderHistory()};
 function toast(s){let t=$("toast");t.textContent=s;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)}
-function copyRoute(){let s="Qo‘qon marshruti\n"+route.map((x,i)=>`${x.isStartDepot?"B":x.isReturnDepot?"Q":i}. ${x.name}${x.note?" ["+x.note+"]":""}`).join("\n");navigator.clipboard?.writeText(s).then(()=>toast("Nusxalandi"))}
+function copyRoute(){
+ let s="Qo‘qon marshruti\n"+route.map((x,i)=>{
+  if(x.isDepot) return `${x.isStartDepot?"B":"Q"}. ${x.name}${x.note?" ["+x.note+"]":""}`;
+  return `${i}. [${x.oldId}/${x.newId}] ${x.name}${x.note?" ["+x.note+"]":""}`;
+ }).join("\n");
+ navigator.clipboard?.writeText(s).then(()=>toast("Nusxalandi"));
+}
 function clear(){if(confirm("Marshrut tozalansinmi?")){route=[];localStorage.removeItem(STORE.route);render()}}
 function reset(){if(confirm("Yangi kun boshlansinmi?")){route=[];$("input").value="";localStorage.removeItem(STORE.route);render()}}
 
@@ -387,3 +408,4 @@ loadState();render();
 </script>
 </body>
 </html>
+

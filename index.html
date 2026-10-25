@@ -1,3 +1,5 @@
+To‘g‘ri, “оф” va “ридер” (yoki “рид”) so‘zlari ham statistika qidiruviga qo‘shildi. Shuningdek, OCR (rasmdan o‘qish) qismidagi sun’iy intellekt promptiga ham ushbu so‘zlarni aniq tushunish bo‘yicha qo‘shimcha ko‘rsatma kiritildi.
+Quyida barcha tuzatishlar kiritilgan to‘liq va yangilangan kod:
 <!doctype html>
 <html lang="uz">
 <head>
@@ -393,7 +395,7 @@ const HISTORY=[
 ];
 const ED={};HISTORY.forEach(r=>r.forEach((x,i)=>i<r.length-1&&(ED[x+">"+r[i+1]]=(ED[x+">"+r[i+1]]||0)+1)));
 
-let route=[],map=null,markers=null,line=null,notes={};
+let route=[],map=null,markers=null,line=null,notes={},activeStatDetail=null;
 
 const norm=s=>String(s??"").toLowerCase().replace(/[‘’´`]/g,"'").trim();
 const find=s=>{s=String(s).trim();if(!s)return null;if(/^\d+$/.test(s))return DB.find(x=>x.oldId===s||x.newId===s)||null;let n=norm(s);return DB.find(x=>norm(x.name).includes(n))||null};
@@ -473,6 +475,7 @@ function rebuild(items){
  const oldNotes={};route.forEach(x=>x.note&&(oldNotes[x.oldId]=x.note));
  const oldDone={};route.forEach(x=>x.done&&(oldDone[x.oldId]=true));
  const ordered=optimize([depot,...unique]).slice(1);
+ activeStatDetail=null;
  route=[
   make(depot,{isDepot:true,isStartDepot:true}),
   ...ordered.map(x=>make(x,{
@@ -572,7 +575,7 @@ async function scan(file){
   const data=await file64(file);
   const prompt=`Siz bankomatlar jadvalidan vazifalarni aniq o‘qiydigan OCR yordamchisiz.
 Rasmdagi barcha haqiqiy 5 xonali bankomat IDlarini toping.
-Har bir IDning yonidagi barcha vazifalarni yozing: 410, 510, 710, smart, dispenser, rider va boshqalar.
+Har bir IDning yonidagi barcha vazifalarni yozing: 410, 510, 710, smart, dispenser, rider (ридер), oflayn (оф) va boshqalar.
 Faqat shu formatda qaytaring:
 62641 710 4-200
 62614 дисп
@@ -603,6 +606,12 @@ function render(){
  if(map&&$("mapView").style.display!=="none")renderMap();
 }
 
+function toggleStatDetail(key) {
+  activeStatDetail = (activeStatDetail === key) ? null : key;
+  updateTaskStats();
+}
+window.toggleStatDetail = toggleStatDetail;
+
 function updateTaskStats(){
  let activeStops=route.filter(x=>!x.isDepot);
  if(!activeStops.length){
@@ -611,47 +620,47 @@ function updateTaskStats(){
  }
  $("taskStatsCard").style.display="block";
 
- let counts={
-  "410": 0,
-  "510": 0,
-  "710": 0,
-  "Log karta": 0,
-  "Dispenser": 0,
-  "Chek": 0,
-  "Oflayn": 0,
-  "Rider": 0
- };
- let cashierItems=[];
+ const categories = [
+   { key: "410", test: s => /\b410\b/.test((s.note||"").toLowerCase()) },
+   { key: "510", test: s => /\b510\b/.test((s.note||"").toLowerCase()) },
+   { key: "710", test: s => /\b710\b/.test((s.note||"").toLowerCase()) },
+   { key: "Log", test: s => /log|лог/.test((s.note||"").toLowerCase()) },
+   { key: "Dispenser", test: s => /disp|дисп/.test((s.note||"").toLowerCase()) },
+   { key: "Chek", test: s => /чек|chek/.test((s.note||"").toLowerCase()) },
+   { key: "Oflayn", test: s => /оф|офлайн|\bоф\b/.test((s.note||"").toLowerCase()) },
+   { key: "Rider", test: s => /ридер|райдер|райдр|rider|рид/.test((s.note||"").toLowerCase()) }
+ ];
 
- activeStops.forEach(s=>{
-  let rawNote=(s.note||"").trim();
-  if(!rawNote) return;
-
-  let lower=rawNote.toLowerCase();
-
-  if(/\b410\b/.test(lower)) counts["410"]++;
-  if(/\b510\b/.test(lower)) counts["510"]++;
-  if(/\b710\b/.test(lower)) counts["710"]++;
-  if(/log\s*karta|karta/.test(lower)) counts["Log karta"]++;
-  if(/disp(enser)?|дисп/.test(lower)) counts["Dispenser"]++;
-  if(/chek|чек/.test(lower)) counts["Chek"]++;
-  if(/of(layn)?|оф(лайн)?/.test(lower)) counts["Oflayn"]++;
-  if(/rider|райдер/.test(lower)) counts["Rider"]++;
-
-  if(/disp(enser)?|дисп/.test(lower)){
-   cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`);
-  }
+ let statsData = {};
+ categories.forEach(cat => {
+   let matchingStops = activeStops.filter(cat.test);
+   if(matchingStops.length > 0){
+     statsData[cat.key] = matchingStops;
+   }
  });
 
- let activeCounts=Object.entries(counts).filter(([k,v])=>v>0);
- let statsHtml=activeCounts
-  .map(([k,v])=>`<span style="display:inline-block;background:rgba(0,0,0,0.04);padding:3px 8px;border-radius:6px;margin:2px 4px 2px 0;font-weight:600;"><b>${esc(k)}:</b> ${v} ta</span>`)
-  .join("");
+ let statsHtml = Object.entries(statsData).map(([key, stops])=>{
+  let isSelected = activeStatDetail === key;
+  return `<span onclick="toggleStatDetail('${key}')" style="display:inline-block;background:${isSelected ? 'var(--accent)' : 'rgba(0,0,0,0.04)'};color:${isSelected ? 'var(--dark-ink)' : 'var(--ink)'};padding:4px 9px;border-radius:8px;margin:2px 4px 2px 0;font-weight:600;cursor:pointer;border:1px solid ${isSelected ? '#b39300' : 'var(--line)'};transition:all .15s;"><b>${esc(key)}:</b> ${stops.length} ta</span>`;
+ }).join("");
 
- $("taskStatsContent").innerHTML=statsHtml||'<span style="color:var(--muted)">Hozircha izohlarda vazifalar kiritilmadi</span>';
+ $("taskStatsContent").innerHTML = statsHtml || '<span style="color:var(--muted)">Hozircha izohlarda vazifalar kiritilmadi</span>';
 
+ if(activeStatDetail && statsData[activeStatDetail]){
+   let stops = statsData[activeStatDetail];
+   let detailHtml = `<div style="margin-top:10px;padding:8px 10px;background:#fbfbfd;border:1px solid var(--line);border-radius:10px;">
+     <div style="font-weight:700;margin-bottom:6px;font-size:11px;color:var(--muted);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;">
+       <span>${esc(activeStatDetail)} punktlari (${stops.length} ta)</span>
+       <span style="cursor:pointer;color:var(--red);" onclick="toggleStatDetail('${activeStatDetail}')">✕</span>
+     </div>
+     ${stops.map(s=>`<div style="font-size:11px;margin-bottom:4px;font-family:ui-monospace,SFMono-Regular,monospace;line-height:1.3;">• <b>[${esc(s.oldId)}/${esc(s.newId)}]</b> ${esc(s.name)} ${s.note?`<span style="color:var(--muted)">- ${esc(s.note)}</span>`:""}</div>`).join("")}
+   </div>`;
+   $("taskStatsContent").innerHTML += detailHtml;
+ }
+
+ let cashierItems = activeStops.filter(s => /disp|дисп/.test((s.note||"").toLowerCase()));
  if(cashierItems.length>0){
-  $("cashierListContent").innerHTML=`<b>Kalitlar (${cashierItems.length} ta punkt):</b><br>`+cashierItems.map(item=>`• ${esc(item)}`).join("<br>");
+  $("cashierListContent").innerHTML=`<b>Kalitlar (${cashierItems.length} ta punkt):</b><br>`+cashierItems.map(item=>`• [${esc(item.oldId)}/${esc(item.newId)}] ${esc(item.name)}: ${esc(item.note)}`).join("<br>");
  }else{
   $("cashierListContent").innerHTML='<span style="color:var(--muted)">Dispenser talab qilinadigan punktlar yo‘q.</span>';
  }
@@ -801,3 +810,4 @@ loadState();render();
 </script>
 </body>
 </html>
+

@@ -140,12 +140,13 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
 
 .stopcard{
   background:var(--card);border:1px solid var(--line);border-radius:16px;
-  padding:12px;box-shadow:var(--shadow-sm);min-width:0;
+  padding:12px;box-shadow:var(--shadow-sm);min-width:0;position:relative;
   transition:all .2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .stopcard.done{background:#f0fdf4;border-color:rgba(52, 199, 89, 0.3)}
+.stopcard.error{background:var(--red2);border-color:rgba(255, 59, 48, 0.4)}
 
-.name{font-size:14px;font-weight:700;line-height:1.3;padding-right:24px;color:var(--ink)}
+.name{font-size:14px;font-weight:700;line-height:1.3;padding-right:75px;color:var(--ink)}
 .ids{font:11px ui-monospace,SFMono-Regular,monospace;color:var(--muted);margin-top:3px}
 .badge{font-size:9px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,0.05);margin-left:4px;font-weight:600}
 .badge.new{background:var(--accent);color:var(--dark-ink)}
@@ -177,18 +178,22 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
 }
 .done.on{background:var(--ok);border-color:var(--ok);color:#fff}
 
+.top-controls{
+  position:absolute;right:10px;top:10px;display:flex;gap:4px;align-items:center;
+}
+
 .remove{
-  position:absolute;right:10px;top:10px;width:24px;height:24px;
+  width:28px;height:28px;
   border:0;border-radius:50%;background:var(--red2);
-  color:var(--red);font-size:12px;display:grid;place-items:center;
+  color:var(--red);font-size:13px;display:grid;place-items:center;
   transition:all .15s;font-weight:bold;
 }
 .remove:hover{background:var(--red);color:#fff}
 
-.moves{display:flex;gap:4px;margin-left:4px}
+.moves{display:flex;gap:2px}
 .move{
   border:1px solid var(--line);background:rgba(0,0,0,0.02);border-radius:8px;
-  width:26px;height:26px;font-size:11px;font-weight:700;color:var(--ink);
+  width:30px;height:30px;font-size:13px;font-weight:700;color:var(--ink);
   display:grid;place-items:center;transition:all .15s;
 }
 .move:active{background:var(--dark-ink);color:var(--accent);border-color:var(--dark-ink);transform:scale(0.9)}
@@ -256,7 +261,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:16px;font-wei
 </section>
 
 <div class="quick" id="quick" style="display:none">
-  <input id="quickInput" placeholder="Yo‘lda ID qo‘shish (masalan: 62614)...">
+  <input id="quickInput" placeholder="ID qo‘shish (masalan: 62614)...">
   <button id="quickBtn" type="button">Qo‘shish</button>
 </div>
 
@@ -271,8 +276,8 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:16px;font-wei
   <div class="label">Vazifalar statistikasi</div>
   <div id="taskStatsContent" style="font-size:12px;line-height:1.5;color:var(--ink);"></div>
   <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;">
-    <div class="label" style="margin:0;">Kassir uchun kalit va jihozlar</div>
-    <button class="btn ghost" id="copyCashierBtn" style="padding:6px 10px;font-size:11px;">Kassirga copy</button>
+    <div class="label" style="margin:0;">Kalitlar</div>
+    <button class="btn ghost" id="copyCashierBtn" style="padding:6px 10px;font-size:11px;">Nusxalash</button>
   </div>
   <div id="cashierListContent" style="font-size:12px;margin-top:6px;color:var(--muted);line-height:1.4;"></div>
 </section>
@@ -365,7 +370,7 @@ const RAW=[
 [35115,62644,"Buvayda круг",40.635463,71.079558,"Buvayda tumani","обычный"],
 [25529,62633,"Пошшопирим",40.629550,71.173002,"Buvayda tumani","Full"],
 [22743,62629,"Бештерак",40.616193,71.054612,"Buvayda tumani","обычный"],
-[22747,62630,"Асмо Учкўприк",40.544409,71.055668,"Uchko‘prik tumani","обычный"],
+[22747,62630,"Асмо Uchkўприк",40.544409,71.055668,"Uchko‘prik tumani","обычный"],
 [20584,62628,"Qo’qon Shinam choyxona",40.548422,70.950266,"Uchko‘prik tumani","обычный"],
 [25530,62634,"Қораянтоқ",40.641035,70.998435,"Uchko‘prik tumani","Full"],
 [20580,62624,"Қирғиз",40.416068,71.020548,"Uchko‘prik tumani","обычный"],
@@ -465,9 +470,18 @@ function parse(text){
 function rebuild(items){
  const depot=DB.find(x=>x.oldId===START),unique=[];
  items.forEach(x=>{if(x.oldId!==START&&!unique.some(y=>y.oldId===x.oldId))unique.push(x)});
- const old={};route.forEach(x=>x.note&&(old[x.oldId]=x.note));
+ const oldNotes={};route.forEach(x=>x.note&&(oldNotes[x.oldId]=x.note));
+ const oldDone={};route.forEach(x=>x.done&&(oldDone[x.oldId]=true));
  const ordered=optimize([depot,...unique]).slice(1);
- route=[make(depot,{isDepot:true,isStartDepot:true}),...ordered.map(x=>make(x,{note:old[x.oldId]||notes[x.oldId]||"",justAdded:!!x.justAdded})),make(depot,{oldId:START+"_END",isDepot:true,isReturnDepot:true,name:depot.name+" (Qaytish)"})];
+ route=[
+  make(depot,{isDepot:true,isStartDepot:true}),
+  ...ordered.map(x=>make(x,{
+   note:oldNotes[x.oldId]||notes[x.oldId]||"",
+   done:!!oldDone[x.oldId],
+   justAdded:!!x.justAdded
+  })),
+  make(depot,{oldId:START+"_END",isDepot:true,isReturnDepot:true,name:depot.name+" (Qaytish)"})
+ ];
  saveState();render();
 }
 
@@ -503,11 +517,36 @@ function remove(i){
     route.splice(i,1);saveState();render();toast("O‘chirildi");
   }
 }
+
+function isTaskError(s, noteText){
+  if(s.isDepot) return false;
+  let noteLower = (noteText || "").toLowerCase();
+  let t = (s.type || "").toLowerCase();
+  let has410 = /\b410\b/.test(noteLower);
+  let has510 = /\b510\b/.test(noteLower);
+  let has710 = /\b710\b/.test(noteLower);
+  let has4200 = /4-200/.test(noteLower);
+
+  if (t.includes("obychniy") || t.includes("обычный")) {
+    if (has510 || has710 || has4200) return true;
+  } else if (t.includes("smart")) {
+    if (has410 || has710 || has4200) return true;
+  } else if (t.includes("full")) {
+    if (has410 || has510) return true;
+  }
+  return false;
+}
+
 function note(i,v){
   if(route[i]){
     route[i].note=v;
     saveState();
     updateTaskStats();
+    let cardEl = document.querySelector(`#stop-${i} .stopcard`);
+    if(cardEl){
+      let err = isTaskError(route[i], v);
+      cardEl.classList.toggle("error", err);
+    }
   }
 }
 window.move=move;window.toggleDone=toggleDone;window.remove=remove;window.note=note;
@@ -533,7 +572,7 @@ async function scan(file){
   const data=await file64(file);
   const prompt=`Siz bankomatlar jadvalidan vazifalarni aniq o‘qiydigan OCR yordamchisiz.
 Rasmdagi barcha haqiqiy 5 xonali bankomat IDlarini toping.
-Har bir IDning yonidagi barcha vazifalarni yozing: 410, 710, smart, dispenser, rider va boshqalar.
+Har bir IDning yonidagi barcha vazifalarni yozing: 410, 510, 710, smart, dispenser, rider va boshqalar.
 Faqat shu formatda qaytaring:
 62641 710 4-200
 62614 дисп
@@ -572,30 +611,49 @@ function updateTaskStats(){
  }
  $("taskStatsCard").style.display="block";
 
- let counts={"410":0,"710":0,"Log":0,"Dispenser/Disp":0,"Rider":0,"Kalit":0};
+ let counts={
+  "410": 0,
+  "510": 0,
+  "710": 0,
+  "Log karta": 0,
+  "Dispenser": 0,
+  "Chek": 0,
+  "Oflayn": 0,
+  "Rider": 0
+ };
  let cashierItems=[];
 
  activeStops.forEach(s=>{
-  let n=(s.note||"").toLowerCase();
-  if(/410/.test(n)) counts["410"]++;
-  if(/710/.test(n)) counts["710"]++;
-  if(/log|лог/.test(n)) counts["Log"]++;
-  if(/disp|дисп/.test(n)){ counts["Dispenser/Disp"]++; cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`); }
-  if(/rider|райдер/.test(n)){ counts["Rider"]++; cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`); }
-  if(/kalit|ключ/.test(n)){ counts["Kalit"]++; cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`); }
+  let rawNote=(s.note||"").trim();
+  if(!rawNote) return;
+
+  let lower=rawNote.toLowerCase();
+
+  if(/\b410\b/.test(lower)) counts["410"]++;
+  if(/\b510\b/.test(lower)) counts["510"]++;
+  if(/\b710\b/.test(lower)) counts["710"]++;
+  if(/log\s*karta|karta/.test(lower)) counts["Log karta"]++;
+  if(/disp(enser)?|дисп/.test(lower)) counts["Dispenser"]++;
+  if(/chek|чек/.test(lower)) counts["Chek"]++;
+  if(/of(layn)?|оф(лайн)?/.test(lower)) counts["Oflayn"]++;
+  if(/rider|райдер/.test(lower)) counts["Rider"]++;
+
+  if(/disp(enser)?|дисп/.test(lower)){
+   cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`);
+  }
  });
 
- let statsHtml=Object.entries(counts)
-  .filter(([k,v])=>v>0)
-  .map(([k,v])=>`<span style="display:inline-block;background:rgba(0,0,0,0.04);padding:3px 8px;border-radius:6px;margin:2px 4px 2px 0;font-weight:600;"><b>${k}:</b> ${v} ta</span>`)
+ let activeCounts=Object.entries(counts).filter(([k,v])=>v>0);
+ let statsHtml=activeCounts
+  .map(([k,v])=>`<span style="display:inline-block;background:rgba(0,0,0,0.04);padding:3px 8px;border-radius:6px;margin:2px 4px 2px 0;font-weight:600;"><b>${esc(k)}:</b> ${v} ta</span>`)
   .join("");
 
- $("taskStatsContent").innerHTML=statsHtml||'<span style="color:var(--muted)">Hozircha izohlarda maxsus belgilar kiritilmadi</span>';
+ $("taskStatsContent").innerHTML=statsHtml||'<span style="color:var(--muted)">Hozircha izohlarda vazifalar kiritilmadi</span>';
 
  if(cashierItems.length>0){
-  $("cashierListContent").innerHTML=`<b>Kerakli jihozlar/kalitlar (${cashierItems.length} ta punkt):</b><br>`+cashierItems.map(item=>`• ${esc(item)}`).join("<br>");
+  $("cashierListContent").innerHTML=`<b>Kalitlar (${cashierItems.length} ta punkt):</b><br>`+cashierItems.map(item=>`• ${esc(item)}`).join("<br>");
  }else{
-  $("cashierListContent").innerHTML='<span style="color:var(--muted)">Dispenser, rider yoki kalit talab qilinadigan punktlar yo‘q.</span>';
+  $("cashierListContent").innerHTML='<span style="color:var(--muted)">Dispenser talab qilinadigan punktlar yo‘q.</span>';
  }
 }
 
@@ -603,13 +661,13 @@ function copyCashierText(){
  let activeStops=route.filter(x=>!x.isDepot);
  let cashierItems=activeStops.filter(s=>{
   let n=(s.note||"").toLowerCase();
-  return /disp|дисп|rider|райдер|kalit|ключ/.test(n);
+  return /disp(enser)?|дисп/.test(n);
  });
  
- let text="Kassirga topshiriladigan kalit va jihozlar:\n"+
-  (cashierItems.length ? cashierItems.map(s=>`• [${s.oldId}/${s.newId}] ${s.name} - Izoh: ${s.note}`).join("\n") : "Maxsus kalit va jihozlar talab qilinadigan punktlar yo‘q.");
+ let text="Kalitlar:\n"+
+  (cashierItems.length ? cashierItems.map(s=>`• [${s.oldId}/${s.newId}] ${s.name} - Izoh: ${s.note}`).join("\n") : "Dispenser talab qilinadigan punktlar yo‘q.");
  
- navigator.clipboard?.writeText(text).then(()=>toast("Kassir uchun nusxalandi"));
+ navigator.clipboard?.writeText(text).then(()=>toast("Nusxalandi"));
 }
 
 function renderList(){
@@ -618,17 +676,23 @@ function renderList(){
   let seq=s.isStartDepot?"B":s.isReturnDepot?"Q":i,cl=s.isDepot?"depot":s.done?"done":"";
   let circuitBadge=SET_A.has(s.oldId)?'<span class="badge ca">A</span>':SET_B.has(s.oldId)?'<span class="badge cb">B</span>':"";
   let typeBadge = s.type === "Full" ? '<span class="badge" style="background:var(--accent);color:var(--dark-ink)">Full</span>' : s.type === "Smart" ? '<span class="badge" style="background:var(--ok);color:#fff">Smart</span>' : '<span class="badge" style="background:#ff2d5522;color:#ff2d55">обычный</span>';
-  return `<div class="stop" id="stop-${i}"><div class="rail"><div class="seq ${cl}">${seq}</div></div><div class="stopcard ${s.done?"done":""}">
-  ${!s.isDepot?`<button class="remove" onclick="remove(${i})" title="O‘chirish">×</button>`:""}
+
+  let err = isTaskError(s, s.note);
+  let cardClass = s.isDepot ? "" : err ? "error" : s.done ? "done" : "";
+
+  return `<div class="stop" id="stop-${i}"><div class="rail"><div class="seq ${cl}">${seq}</div></div><div class="stopcard ${cardClass}">
+  ${!s.isDepot?`<div class="top-controls">
+    <div class="moves">
+      <button class="move" onclick="move(${i},-1)" ${i===1?"disabled":""}>▲</button>
+      <button class="move" onclick="move(${i},1)" ${i===route.length-2?"disabled":""}>▼</button>
+    </div>
+    <button class="remove" onclick="remove(${i})" title="O‘chirish">×</button>
+  </div>`:""}
   <div class="name">${esc(s.name)}${!s.isDepot?typeBadge:""}${s.justAdded?'<span class="badge new">YANGI</span>':""}</div>
   ${!s.isDepot?`<div class="ids">eski ${esc(s.oldId)} · yangi ${esc(s.newId)} ${circuitBadge}</div>`:""}
   ${!s.isDepot?`<input class="note" value="${esc(s.note||"")}" placeholder="Vazifa / izoh..." oninput="note(${i},this.value)">`:""}
   ${!s.isDepot?`<div class="actions">
     ${s.hasCoords?`<a class="mini" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}"><img src="https://www.google.com/favicon.ico" alt=""></a><a class="mini" target="_blank" href="yandexnavi://build_route_on_map?lat_to=${s.lat}&lon_to=${s.lng}"><img src="https://yandex.ru/favicon.ico" alt=""></a>`:""}
-    <div class="moves">
-      <button class="move" onclick="move(${i},-1)" ${i===1?"disabled":""}>▲</button>
-      <button class="move" onclick="move(${i},1)" ${i===route.length-2?"disabled":""}>▼</button>
-    </div>
     <button class="done ${s.done?"on":""}" onclick="toggleDone(${i})">${s.done?"✓ Bajarildi":"Bajarildi"}</button>
   </div>`:""}
   </div></div>`
@@ -737,4 +801,3 @@ loadState();render();
 </script>
 </body>
 </html>
-

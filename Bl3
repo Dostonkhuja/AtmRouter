@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Qo‘qon Marshrut Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #fafafa;
+  --ink: #1d1d1f;
+  --muted: #86868b;
+  --line: #e5e5ea;
+  --accent: #ffd100;
+  --accent-glow: rgba(255, 209, 0, 0.2);
+  --accent-hover: #e5bd00;
+  --dark-ink: #111113;
+  --red: #ff3b30;
+  --red2: rgba(255, 59, 48, 0.12);
+  --amber: #ff9f0a;
+  --ok: #34c759;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,sans-serif;letter-spacing:-0.01em}
+button,input,textarea{font:inherit}button{cursor:pointer}
+#app{width:min(100%,430px);margin:auto;min-height:100dvh;padding-bottom:40px}
+
+header{
+  position:sticky;top:0;z-index:20;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background:rgba(245, 245, 247, 0.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+}
+h1{font-size:17px;margin:0;font-weight:700;color:var(--ink);letter-spacing:-0.02em}
+.sub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:500}
+
+.reset{
+  border:0;background:var(--red2);color:var(--red);
+  border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;
+  transition:all .2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.reset:active{transform:scale(0.95)}
+
+.card, .summary, .quick, .history{
+  margin:10px 12px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+}
+.card{padding:14px}
+.label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+
+textarea{
+  display:block;width:100%;height:75px;resize:vertical;
+  border:1px solid var(--line);border-radius:12px;
+  background:#fbfbfd;color:var(--ink);
+  padding:10px 12px;outline:0;font-size:14px;
+  transition:all .2s ease;
+}
+textarea:focus, input:focus{
+  border-color:#b39300;
+  box-shadow:0 0 0 3px var(--accent-glow);
+}
+
+.row{display:flex;gap:8px;margin-top:10px}
+.btn{
+  border:0;border-radius:12px;padding:11px 14px;
+  font-size:13px;font-weight:650;
+  transition:all .2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.btn:active{transform:scale(0.97)}
+.primary{background:var(--accent);color:var(--dark-ink);box-shadow:0 4px 12px rgba(255, 209, 0, 0.3)}
+.primary:hover{background:var(--accent-hover)}
+.ghost{background:rgba(0, 0, 0, 0.04);color:var(--ink);border:1px solid var(--line)}
+.ghost:hover{background:rgba(0, 0, 0, 0.07)}
+.danger{background:var(--red2);color:var(--red)}
+
+button:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.hint{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.4}
+
+@keyframes skeletonPulse{0%{opacity:0.6}50%{opacity:1}100%{opacity:0.6}}
+.skeleton{animation:skeletonPulse 1.2s infinite ease-in-out;pointer-events:none;filter:grayscale(100%)}
+
+.quick{
+  display:flex;padding:6px;gap:6px;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow-sm);
+}
+.quick input{flex:1;border:0;outline:0;padding:8px 10px;font-size:13px;background:transparent;color:var(--ink)}
+.quick button{
+  background:var(--accent);color:var(--dark-ink);border:0;border-radius:10px;
+  padding:8px 14px;font-weight:650;font-size:12px;
+}
+
+.tabs{
+  display:flex;margin:10px 12px;padding:4px;
+  background:#e5e5ea;border-radius:14px;border:1px solid rgba(0,0,0,0.04);
+}
+.tab{
+  flex:1;text-align:center;padding:8px;border-radius:10px;
+  font-size:12px;font-weight:650;color:var(--muted);
+  transition:all .2s ease;
+}
+.tab.active{background:var(--card);color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+
+.summary{display:flex;align-items:center;padding:12px 14px;gap:10px}
+.stat{flex:1}
+.stat b{font-size:15px;display:block;color:var(--ink);font-weight:700}
+.stat span{font-size:10px;color:var(--muted);font-weight:500}
+.sum-actions{display:flex;gap:6px}
+.square{padding:9px 11px;border-radius:10px}
+
+#list{padding:0 12px}
+.stop{
+  display:grid;grid-template-columns:29px 1fr;gap:8px;
+  position:relative;margin-bottom:8px;
+  transition:transform 0.2s ease, opacity 0.2s ease;
+}
+.stop.moved{animation:pulseCard 0.4s ease}
+@keyframes pulseCard{0%{transform:scale(1);background-color:transparent}50%{transform:scale(1.02);background-color:var(--accent-glow)}100%{transform:scale(1);background-color:transparent}}
+
+.rail{display:flex;flex-direction:column;align-items:center}
+.seq{
+  width:27px;height:27px;border-radius:50%;display:grid;place-items:center;
+  background:var(--dark-ink);color:#ffffff;font-size:11px;font-weight:800;z-index:1;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+.seq.depot{background:var(--amber);color:#fff}
+.seq.done{background:var(--ok);color:#fff}
+.rail:after{content:"";width:2px;background:var(--line);flex:1;margin-top:4px;border-radius:1px}
+.stop:last-child .rail:after{display:none}
+
+.stopcard{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:12px;box-shadow:var(--shadow-sm);min-width:0;
+  transition:all .2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.stopcard.done{background:#f0fdf4;border-color:rgba(52, 199, 89, 0.3)}
+
+.name{font-size:14px;font-weight:700;line-height:1.3;padding-right:24px;color:var(--ink)}
+.ids{font:11px ui-monospace,SFMono-Regular,monospace;color:var(--muted);margin-top:3px}
+.badge{font-size:9px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,0.05);margin-left:4px;font-weight:600}
+.badge.new{background:var(--accent);color:var(--dark-ink)}
+.badge.bad{background:var(--red2);color:var(--red)}
+.badge.ca{background:rgba(0, 113, 227, 0.1);color:#0071e3}
+.badge.cb{background:rgba(175, 82, 222, 0.1);color:#af52de}
+
+.note{
+  margin-top:8px;width:100%;border:1px solid var(--line);border-radius:10px;
+  padding:8px 10px;font-size:12px;outline:0;background:#fbfbfd;color:var(--ink);
+  transition:all .2s ease;
+}
+.note:focus{border-color:#b39300;box-shadow:0 0 0 2px var(--accent-glow)}
+
+.actions{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.mini{
+  border:1px solid var(--line);border-radius:8px;padding:6px 9px;
+  font-size:11px;font-weight:650;background:rgba(0,0,0,0.02);
+  color:var(--ink);text-decoration:none;transition:all .15s;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.mini img{width:16px;height:16px;border-radius:3px;object-fit:contain}
+.mini:hover{background:rgba(0,0,0,0.05)}
+
+.done{
+  margin-left:auto;border:1px solid var(--line);border-radius:8px;
+  background:rgba(0,0,0,0.02);color:var(--ink);padding:6px 10px;
+  font-size:11px;font-weight:650;transition:all .2s;
+}
+.done.on{background:var(--ok);border-color:var(--ok);color:#fff}
+
+.remove{
+  position:absolute;right:10px;top:10px;width:24px;height:24px;
+  border:0;border-radius:50%;background:var(--red2);
+  color:var(--red);font-size:12px;display:grid;place-items:center;
+  transition:all .15s;font-weight:bold;
+}
+.remove:hover{background:var(--red);color:#fff}
+
+.moves{display:flex;gap:4px;margin-left:4px}
+.move{
+  border:1px solid var(--line);background:rgba(0,0,0,0.02);border-radius:8px;
+  width:26px;height:26px;font-size:11px;font-weight:700;color:var(--ink);
+  display:grid;place-items:center;transition:all .15s;
+}
+.move:active{background:var(--dark-ink);color:var(--accent);border-color:var(--dark-ink);transform:scale(0.9)}
+
+#mapView{display:none;padding:0 12px}
+#map{height:55dvh;border-radius:18px;border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow)}
+.mapBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mapBtns a{text-align:center;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px}
+.mapBtns img{width:16px;height:16px;border-radius:3px;object-fit:contain}
+
+.history{overflow:hidden}
+.history-head{
+  width:100%;border:0;background:var(--card);color:var(--ink);
+  padding:12px 14px;display:flex;justify-content:space-between;
+  font-size:13px;font-weight:650;
+}
+.history-body{display:none;padding:0 12px 10px}
+.history-body.open{display:block}
+.hist{
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--line);padding:10px 0;font-size:12px;
+}
+.hist small{color:var(--muted)}
+
+.modal{
+  position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;place-items:center;padding:20px;
+}
+.modal.open{display:grid}
+.modal-card{
+  width:min(100%,360px);background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:18px;box-shadow:var(--shadow);
+}
+.modal-card b{color:var(--ink);font-size:16px}
+.modal-card input{
+  width:100%;border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;outline:0;margin:10px 0 14px;background:#fbfbfd;color:var(--ink);
+}
+
+#toast{
+  position:fixed;z-index:200;left:50%;bottom:24px;transform:translate(-50%,20px);
+  opacity:0;background:var(--dark-ink);color:#fff;padding:10px 16px;border-radius:20px;
+  font-size:12px;font-weight:650;box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  border:1px solid rgba(255,255,255,0.1);transition:all .25s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events:none;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+footer{text-align:center;color:var(--muted);font-size:10px;padding:16px;font-weight:500}
+@media(min-width:600px){#app{width:430px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div><h1>Qo‘qon bankomat marshruti</h1><div class="sub" id="date"></div></div><button class="reset" id="reset">Yangi kun</button></header>
+
+<section class="card">
+<div class="label">ID va vazifalar</div>
+<textarea id="input" placeholder="62641 710 4-200&#10;62614 дисп&#10;62598 410"></textarea>
+<div class="hint">Rasmda bir ID bir necha marta uchrasa, barcha vazifalar bitta kommentga birlashtiriladi. Shuningdek, ID va izohlarni qo‘lda yozib kiritishingiz mumkin.</div>
+<input id="file" type="file" accept="image/*" hidden>
+<div class="row"><button class="btn ghost" id="upload">Rasm o‘qish</button><button class="btn primary" id="build">Optimal marshrut</button></div>
+<div id="error"></div>
+</section>
+
+<div class="quick" id="quick" style="display:none">
+  <input id="quickInput" placeholder="Yo‘lda ID qo‘shish (masalan: 62614)...">
+  <button id="quickBtn" type="button">Qo‘shish</button>
+</div>
+
+<div class="tabs" id="tabs" style="display:none"><div class="tab active" id="listTab">Ro‘yxat</div><div class="tab" id="mapTab">Xarita</div></div>
+
+<div class="summary" id="summary" style="display:none">
+<div class="stat"><b id="doneStat">0/0</b><span>bajarildi</span></div><div class="stat"><b id="distStat">0 km</b><span>masofa</span></div><div class="stat"><b id="timeStat">0 d</b><span>vaqt</span></div>
+<div class="sum-actions"><button class="btn ghost square" id="reverseBtn" title="Marshrutni teskari qilish">⇄</button><button class="btn ghost square" id="save">Saqlash</button><button class="btn ghost square" id="copy">Copy</button><button class="btn danger square" id="clear">Tozalash</button></div>
+</div>
+
+<div id="list"></div>
+<div id="mapView">
+  <div id="map"></div>
+  <div class="mapBtns">
+    <a class="btn primary" id="googleAll" target="_blank">
+      <img src="https://www.google.com/favicon.ico" alt=""> Google
+    </a>
+    <a class="btn ghost" id="yandexAll" target="_blank">
+      <img src="https://yandex.ru/favicon.ico" alt=""> Yandex
+    </a>
+  </div>
+</div>
+
+<section class="history" id="historyBox" style="display:none">
+<button class="history-head" id="historyToggle"><span>Saqlangan marshrutlar</span><span id="arrow">▼</span></button>
+<div class="history-body" id="historyBody"><div id="historyList"></div></div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-card"><b>Marshrutni saqlash</b><input id="routeName" placeholder="Marshrut nomi"><div class="row"><button class="btn ghost" id="modalClose">Bekor</button><button class="btn primary" id="modalSave">Saqlash</button></div></div></div>
+<div id="toast"></div>
+<footer>Ma’lumotlar qurilmada saqlanadi</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+
+const GEMINI_PROXY_URL="https://qoqon-gemini.sheraliyevdostonhoja.workers.dev";
+const START="19765", SPEED=35;
+const STORE={route:"qoqon_route_current",history:"qoqon_routes_history"};
+
+const RAW=[
+[19765,62591,"Kapitalbank filiali Qo‘qon",40.527507,70.939744,"Qo‘qon shahri"],
+[27192,62612,"Юсуфбек",40.508181,70.930420,"Qo‘qon shahri"],
+[25540,62638,"Навоий Марварид",40.541127,70.972689,"Qo‘qon shahri"],
+[20581,62625,"Навоий Беназир",40.539578,70.973586,"Qo‘qон shahri"],
+[25543,62639,"Жиннихона",40.551695,70.961524,"Qo‘qон shahri"],
+[22751,62631,"Эски Беназир",40.543332,70.935198,"Qo‘қon shahri"],
+[25553,62643,"Янги Беназир",40.548711,70.923874,"Qo‘qon shahri"],
+[25528,62632,"Екстренный больница",40.552613,70.930078,"Qo‘qon shahri"],
+[25532,62635,"Мостни таги Янги бозор",40.551276,70.961628,"Qo‘qon shahri"],
+[35116,62645,"Коппон",40.526184,70.955035,"Qo‘qon shahri"],
+[40747,62620,"Al Fajr",40.542249,70.921159,"Qo‘qon shahri"],
+[31212,62614,"Найманча",40.524491,70.874890,"Qo‘qon shahri"],
+[25534,62636,"Қўқонбой",40.469919,71.036609,"Qo‘qon shahri"],
+[25546,62641,"Тўлибой",40.571512,70.949227,"Qo‘qon shahri"],
+[25531,62603,"Furqat bozor",40.485157,70.771771,"Furqat tumani"],
+[20578,62593,"Фурқат 2-мактаб",40.483434,70.768838,"Furqat tumani"],
+[22742,62594,"Фурқат центр Беназир",40.481127,70.771070,"Furqat tumani"],
+[22752,62598,"Томоша",40.469525,70.725567,"Furqat tumani"],
+[22754,62599,"Калдушон",40.472005,70.865062,"Furqat tumani"],
+[25524,62600,"Эшон",40.432663,70.786514,"Furqat tumani"],
+[25526,62602,"Қоратепа",40.496170,70.947387,"Furqat tumani yo'nalishi"],
+[22746,62596,"Катта Янги",40.412961,70.795135,"Furqat tumani"],
+[22749,62597,"Ohunqaynar",40.489739,70.919255,"O‘zbekiston tumani"],
+[25539,62605,"Yaypan Ibn Sino",40.380730,70.807390,"O‘zbekiston tumani"],
+[25551,62608,"Yaypan bozor",40.382123,70.808672,"O‘zbekiston tumani"],
+[35118,62615,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani"],
+[35119,62616,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani"],
+[35121,62617,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani"],
+[25556,62611,"Turon stadion",40.376154,70.825625,"O‘zbekiston tumani"],
+[25555,62610,"Nursuq Xumo market",40.365995,70.749656,"O‘zbekiston tumani"],
+[22745,62595,"Nursux Real Market",40.370269,70.766439,"O‘zbekiston tumani"],
+[20564,62592,"Qudash",40.431528,70.872480,"O‘zbekiston tumani"],
+[31211,62613,"Qushqanoq",40.426288,70.866018,"O‘zbekiston tumani"],
+[25533,62604,"Конизар, туман больница",40.373317,70.834863,"O‘zbekiston tumani"],
+[35122,62618,"Яккатут",40.440822,70.882844,"O‘zbekiston tumani"],
+[25525,62601,"Тагоб",40.363333,70.740183,"O‘zbekiston tumani"],
+[25554,62609,"O‘qchi",40.335926,71.000247,"O‘zbekiston tumani"],
+[25542,62606,"Katta Minglar",40.539945,70.874052,"Dang‘ara tumani"],
+[35125,62647,"Данғара Марварид",40.579433,70.915486,"Dang‘ara tumani"],
+[25536,62637,"Мулкобод",40.669926,70.925951,"Dang‘ara tumani"],
+[25545,62640,"Доимобод",40.644189,70.801574,"Dang‘ara tumani"],
+[25548,62642,"Оқжар",40.667287,70.776388,"Dang‘ara tumani"],
+[20582,62626,"Оқжар Султон",40.672539,70.786122,"Dang‘ara tumani"],
+[25544,62607,"Бекобод",40.491804,70.834974,"Qo‘qon shahri"],
+[35120,62646,"Texnomart Bog‘dod",40.459033,71.213925,"Bog‘dod tumani"],
+[40748,62648,"Палма Боғдод",40.490608,71.108615,"Bog‘dod tumani"],
+[40755,62650,"Бордон",40.521392,71.162372,"Bog‘dod tumani"],
+[40754,62649,"Rishton",40.359448,71.279270,"Rishton tumani"],
+[20574,62621,"Водий Тараққиёт Янги Қўрғон",40.557274,71.142729,"Yangiqo‘rg‘on tumani"],
+[20577,62622,"Yangi Qo‘rg‘on Yulduzcha",40.560428,71.143001,"Yangiqo‘rg‘on tumani"],
+[20583,62627,"Янги Қўрғон бозорча",40.560076,71.142444,"Yangiqo‘rg‘on tumani"],
+[20579,62623,"Чуваланчи",40.492685,71.148291,"Yangiqo‘rg‘on tumani"],
+[35115,62644,"Бувайда круг",40.635463,71.079558,"Buvayda tumani"],
+[25529,62633,"Пошшопирим",40.629550,71.173002,"Buvayda tumani"],
+[22743,62629,"Бештерак",40.616193,71.054612,"Buvayda tumani"],
+[22747,62630,"Асмо Учкўприк",40.544409,71.055668,"Uchko‘prik tumani"],
+[20584,62628,"Sobirjon qishloq",40.618183,70.986767,"Uchko‘prik tumani"],
+[25530,62634,"Қораянтоқ",40.641035,70.998435,"Uchko‘prik tumani"],
+[20580,62624,"Қирғиз",40.416068,71.020548,"Uchko‘prik tumani"],
+[40744,62619,"Рапқон",40.351413,70.666247,"Beshariq tumani"]
+];
+const DB=RAW.map(([oldId,newId,name,lat,lng,region])=>({oldId:String(oldId),newId:String(newId),name,lat,lng,region,hasCoords:lat!=null&&lng!=null}));
+
+const TEMPLATE_A=["40747","22751","25553","25528","25546","35125","25545","25548","20582","20584","25536","25530","22743","35115","25529","20577","20583","20574","40755","20579","35120","40754","40748","20580","25534","22747","20581","25540","25532","25543","35116"];
+const TEMPLATE_B=["27192","22749","25526","35122","20564","31211","25533","25554","25556","35118","35119","35121","25551","25539","22745","25555","25525","40744","22746","25524","22742","20578","25531","22752","25544","22754","31212","25542"];
+const IDX_A={},IDX_B={};TEMPLATE_A.forEach((id,i)=>IDX_A[id]=i);TEMPLATE_B.forEach((id,i)=>IDX_B[id]=i);
+const SET_A=new Set(TEMPLATE_A),SET_B=new Set(TEMPLATE_B);
+
+const HISTORY=[
+["19765","22751","25528","25536","25530","35115","25529","40755","40754","20579","25540","25548","19765"],
+["19765","40747","25546","22743","35115","25529","20583","35120","19765"],
+["19765","25553","25546","25536","35115","25529","20577","20583","20574","22747","40748","40755","40754","25540","25543","35116","20580","19765"],
+["19765","22751","35125","25546","25530","22743","20577","20579","40754","20580","25532","19765"],
+["19765","40747","22751","35116","25540","40748","20579","20574","20583","22743","25543","25546","35125","20584","25536","35115","19765"],
+["19765","35116","20580","25534","40748","40754","35120","22747","20574","20577","35115","22743","25536","20582","25548","25553","19765"]
+];
+const ED={};HISTORY.forEach(r=>r.forEach((x,i)=>i<r.length-1&&(ED[x+">"+r[i+1]]=(ED[x+">"+r[i+1]]||0)+1)));
+
+let route=[],map=null,markers=null,line=null,notes={};
+
+const norm=s=>String(s??"").toLowerCase().replace(/[‘’´`]/g,"'").trim();
+const find=s=>{s=String(s).trim();if(!s)return null;if(/^\d+$/.test(s))return DB.find(x=>x.oldId===s||x.newId===s)||null;let n=norm(s);return DB.find(x=>norm(x.name).includes(n))||null};
+const dist=(a,b)=>{if(!a?.hasCoords||!b?.hasCoords)return 0;let R=6371,p=Math.PI/180,dlat=(b.lat-a.lat)*p,dlon=(b.lng-a.lng)*p,A=Math.sin(dlat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlon/2)**2;return R*2*Math.atan2(Math.sqrt(A),Math.sqrt(1-A))};
+const bonus=(a,b)=>Math.min(20,((ED[a+">"+b]||0)+(ED[b+">"+a]||0)*.35)*6);
+const cost=(a,b)=>Math.max(.05,dist(a,b)-bonus(a.oldId,b.oldId));
+
+function nearest(a,start){
+ a=[...a];let out=[],cur=start;
+ while(a.length){let k=0,b=Infinity;a.forEach((x,i)=>{let c=cost(cur,x);if(c<b)b=c,k=i});cur=a.splice(k,1)[0];out.push(cur)}
+ return out;
+}
+function insertNearest(ordered,depot,extras){
+ extras.forEach(o=>{
+  if(!ordered.length){ordered.push(o);return}
+  let bestI=0,bestCost=Infinity;
+  for(let i=0;i<=ordered.length;i++){
+   let prev=i===0?depot:ordered[i-1],next=i===ordered.length?null:ordered[i];
+   let c=next?cost(prev,o)+cost(o,next)-cost(prev,next):cost(prev,o);
+   if(c<bestCost){bestCost=c;bestI=i}
+  }
+  ordered.splice(bestI,0,o);
+ });
+ return ordered;
+}
+function optimize(nodes){
+ if(nodes.length<=1)return nodes;
+ let [depot,...targets]=nodes;
+ let groupA=[],groupB=[],other=[];
+ targets.forEach(x=>{
+  if(IDX_A.hasOwnProperty(x.oldId))groupA.push(x);
+  else if(IDX_B.hasOwnProperty(x.oldId))groupB.push(x);
+  else other.push(x);
+ });
+ groupA.sort((a,b)=>IDX_A[a.oldId]-IDX_A[b.oldId]);
+ groupB.sort((a,b)=>IDX_B[a.oldId]-IDX_B[b.oldId]);
+ let seqs=[groupA,groupB].filter(g=>g.length);
+ if(seqs.length===2&&dist(depot,groupB[0])<dist(depot,groupA[0]))seqs=[groupB,groupA];
+ let ordered=seqs.flat();
+ if(!ordered.length){ordered=nearest(other,depot);other=[]}
+ ordered=insertNearest(ordered,depot,other);
+ return [depot,...ordered];
+}
+function make(x,extra={}){return {...x,done:false,note:notes[x.oldId]||"",...extra}}
+
+function parse(text){
+ notes={};let ids=[];
+ text.split(/\n/).forEach(line=>{
+  line=line.trim();if(!line)return;
+  let matches=[...line.matchAll(/\b\d{5}\b/g)];
+  if(matches.length>1){
+   matches.forEach(m=>{
+    let item=find(m[0]);
+    if(item&&!ids.some(x=>x.oldId===item.oldId))ids.push(item);
+   });
+   return;
+  }
+  if(matches.length===1){
+   let id=matches[0][0],item=find(id);
+   if(item){
+    let note=line.replace(id,"").trim();
+    if(note)notes[item.oldId]=[...(notes[item.oldId]||[]),note];
+    if(!ids.some(x=>x.oldId===item.oldId))ids.push(item);
+   }
+  } else {
+   let item=find(line);
+   if(item&&!ids.some(x=>x.oldId===item.oldId))ids.push(item);
+  }
+ });
+ Object.keys(notes).forEach(k=>notes[k]=notes[k].join(" • "));
+ return ids;
+}
+
+function rebuild(items){
+ const depot=DB.find(x=>x.oldId===START),unique=[];
+ items.forEach(x=>{if(x.oldId!==START&&!unique.some(y=>y.oldId===x.oldId))unique.push(x)});
+ const old={};route.forEach(x=>x.note&&(old[x.oldId]=x.note));
+ const ordered=optimize([depot,...unique]).slice(1);
+ route=[make(depot,{isDepot:true,isStartDepot:true}),...ordered.map(x=>make(x,{note:old[x.oldId]||notes[x.oldId]||"",justAdded:!!x.justAdded})),make(depot,{oldId:START+"_END",isDepot:true,isReturnDepot:true,name:depot.name+" (Qaytish)"})];
+ saveState();render();
+}
+
+function build(){
+ setBusy(true);
+ try{let items=parse($("input").value);if(!items.length){route=[];render();return}rebuild(items)}
+ finally{setBusy(false)}
+}
+
+function quickAdd(){
+ let val=$("quickInput").value.trim();if(!val)return;
+ let x=find(val);if(!x)return toast("ID topilmadi");
+ if(x.oldId===START)return;
+ let items=route.filter(x=>!x.isDepot).map(x=>DB.find(d=>d.oldId===x.oldId)).filter(Boolean);
+ if(items.some(y=>y.oldId===x.oldId))return toast("Bu ID allaqachon bor");
+ x={...x,justAdded:true};items.push(x);rebuild(items);$("quickInput").value="";toast("Yangi ID qo‘shildi");
+}
+
+function move(i,d){
+ let j=i+d;if(j<1||j>=route.length-1)return;
+ [route[i],route[j]]=[route[j],route[i]];
+ saveState();
+ render();
+ setTimeout(()=>{
+  let el=document.getElementById(`stop-${j}`);
+  if(el){el.classList.add('moved');setTimeout(()=>el.classList.remove('moved'),400)}
+ },50);
+}
+
+function toggleDone(i){route[i].done=!route[i].done;saveState();render()}
+function remove(i){
+  if(confirm("Haqiqatan ham bu punktni o‘chirmoqchimisiz?")){
+    route.splice(i,1);saveState();render();toast("O‘chirildi");
+  }
+}
+function note(i,v){if(route[i]){route[i].note=v;saveState()}}
+window.move=move;window.toggleDone=toggleDone;window.remove=remove;window.note=note;
+
+function setBusy(b){
+ ["upload","build","quickBtn","quickInput","reset","save","copy","clear","reverseBtn"].forEach(id=>{if($(id))$(id).disabled=b});
+ if(b){
+  $("upload").textContent="Rasm o‘qilmoqda...";
+  $("build").textContent="Tuzilmoqda...";
+  $("input").classList.add("skeleton");
+ }else{
+  $("upload").textContent="Rasm o‘qish";
+  $("build").textContent="Optimal marshrut";
+  $("input").classList.remove("skeleton");
+ }
+}
+function file64(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file)})}
+
+async function scan(file){
+ if(!file)return;
+ setBusy(true);
+ try{
+  const data=await file64(file);
+  const prompt=`Siz bankomatlar jadvalidan vazifalarni aniq o‘qiydigan OCR yordamchisiz.
+Rasmdagi barcha haqiqiy 5 xonali bankomat IDlarini toping.
+Har bir IDning yonidagi barcha vazifalarni yozing: 410, 710, smart, dispenser, rider va boshqalar.
+Faqat shu formatda qaytaring:
+62641 710 4-200
+62614 дисп
+Hech qanday izoh bermang.`;
+  const res=await fetch(GEMINI_PROXY_URL,{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({model:"gemini-3.6-flash",input:[
+    {type:"text",text:prompt},
+    {type:"image",mime_type:file.type||"image/jpeg",data}
+   ],store:false})
+  });
+  const d=await res.json();
+  if(!res.ok||d.error)throw Error(d.error?.message||`API xatosi: ${res.status}`);
+  const text=d.output_text?.trim()||d.steps?.flatMap(s=>s.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim()||"";
+  if(!text)throw Error("Rasmdan ma’lumot olinmadi");
+  $("input").value=text;build();toast("Rasm o‘qildi");
+ }catch(e){console.error(e);$("error").innerHTML=`<div style="color:var(--red);font-size:11px;margin-top:6px">${esc(e.message)}</div>`}
+ finally{$("file").value="";setBusy(false)}
+}
+
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const km=x=>x<1?Math.round(x*1000)+" m":x.toFixed(1)+" km";
+
+function render(){
+ const has=route.length>0;
+ $("tabs").style.display=has?"flex":"none";$("summary").style.display=has?"flex":"none";$("quick").style.display=has?"flex":"none";
+ renderList();renderSummary();renderHistory();nav();
+ if(map&&$("mapView").style.display!=="none")renderMap();
+}
+
+function renderList(){
+ if(!route.length){$("list").innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 10px;font-size:13px">Marshrut tuzilmagan</div>';return}
+ $("list").innerHTML=route.map((s,i)=>{
+  let seq=s.isStartDepot?"B":s.isReturnDepot?"Q":i,cl=s.isDepot?"depot":s.done?"done":"";
+  let circuitBadge=SET_A.has(s.oldId)?'<span class="badge ca">A</span>':SET_B.has(s.oldId)?'<span class="badge cb">B</span>':"";
+  return `<div class="stop" id="stop-${i}"><div class="rail"><div class="seq ${cl}">${seq}</div></div><div class="stopcard ${s.done?"done":""}">
+  ${!s.isDepot?`<button class="remove" onclick="remove(${i})" title="O‘chirish">×</button>`:""}
+  <div class="name">${esc(s.name)}${s.justAdded?'<span class="badge new">YANGI</span>':""}</div>
+  ${!s.isDepot?`<div class="ids">eski ${esc(s.oldId)} · yangi ${esc(s.newId)} ${circuitBadge}</div>`:""}
+  ${!s.isDepot?`<input class="note" value="${esc(s.note||"")}" placeholder="Vazifa / izoh..." oninput="note(${i},this.value)">`:""}
+  ${!s.isDepot?`<div class="actions">
+    ${s.hasCoords?`<a class="mini" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}"><img src="https://www.google.com/favicon.ico" alt=""></a><a class="mini" target="_blank" href="yandexnavi://build_route_on_map?lat_to=${s.lat}&lon_to=${s.lng}"><img src="https://yandex.ru/favicon.ico" alt=""></a>`:""}
+    <div class="moves">
+      <button class="move" onclick="move(${i},-1)" ${i===1?"disabled":""}>▲</button>
+      <button class="move" onclick="move(${i},1)" ${i===route.length-2?"disabled":""}>▼</button>
+    </div>
+    <button class="done ${s.done?"on":""}" onclick="toggleDone(${i})">${s.done?"✓ Bajarildi":"Bajarildi"}</button>
+  </div>`:""}
+  </div></div>`
+ }).join("");
+}
+
+function renderSummary(){
+ let pts=route.filter(x=>x.hasCoords),d=0;for(let i=0;i<pts.length-1;i++)d+=dist(pts[i],pts[i+1]);
+ let done=route.filter(x=>x.done&&!x.isDepot).length,total=route.filter(x=>!x.isDepot).length;
+ $("doneStat").textContent=`${done}/${total}`;$("distStat").textContent=km(d);$("timeStat").textContent=Math.round(d/SPEED*60)+" d";
+}
+
+function nav(){
+ let p=route.filter(x=>x.hasCoords);if(p.length<2)return;
+ let o=p[0],z=p.at(-1),wp=p.slice(1,-1).map(x=>`${x.lat},${x.lng}`).join("|");
+ $("googleAll").href=`https://www.google.com/maps/dir/?api=1&origin=${o.lat},${o.lng}&destination=${z.lat},${z.lng}&waypoints=${wp}&travelmode=driving`;
+ $("yandexAll").href=`yandexnavi://build_route_on_map?lat_from=${o.lat}&lon_from=${o.lng}&lat_to=${z.lat}&lon_to=${z.lng}&client_name=kokon_marshrut`;
+}
+
+function ensureMap(){if(map)return;map=L.map("map");L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(map);markers=L.layerGroup().addTo(map)}
+
+function renderMap(){
+ ensureMap();
+ markers.clearLayers();
+
+ let coordCount={};
+ route.forEach(s=>{
+  if(!s.hasCoords)return;
+  let k=s.lat.toFixed(5)+","+s.lng.toFixed(5);
+  coordCount[k]=(coordCount[k]||0)+1;
+ });
+ let coordSeen={};
+ route.forEach((s, i)=>{
+  if(!s.hasCoords) return;
+  let label = s.isStartDepot ? "B" : s.isReturnDepot ? "Q" : String(i);
+  let k=s.lat.toFixed(5)+","+s.lng.toFixed(5),lat=s.lat,lng=s.lng;
+  if(coordCount[k]>1){
+   let seen=coordSeen[k]||0;coordSeen[k]=seen+1;
+   let angle=(seen/coordCount[k])*2*Math.PI;
+   let r=0.00025;
+   lat+=Math.sin(angle)*r;
+   lng+=Math.cos(angle)*r/Math.cos(lat*Math.PI/180);
+  }
+
+  let icon = L.divIcon({
+   className: 'custom-map-marker',
+   html: `<div style="background:${s.isDepot?'#ff9f0a':'#111113'};color:#ffffff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)">${label}</div>`,
+   iconSize: [28, 28],
+   iconAnchor: [14, 14]
+  });
+
+  L.marker([lat, lng], {icon}).addTo(markers).bindPopup(`<b>${label}. ${esc(s.name)}</b>${s.note?`<br>${esc(s.note)}`:""}`);
+ });
+
+ let p=route.filter(x=>x.hasCoords),ll=p.map(x=>[x.lat,x.lng]);
+ if(line)line.remove();
+ line=L.polyline(ll,{color:"#34c759",weight:5,opacity:0.9}).addTo(map);
+ if(ll.length)map.fitBounds(line.getBounds(),{padding:[20,20]});
+}
+
+function tab(name){
+ let list=name==="list";$("listTab").classList.toggle("active",list);$("mapTab").classList.toggle("active",!list);$("list").style.display=list?"block":"none";$("mapView").style.display=list?"none":"block";
+ if(!list)setTimeout(()=>{ensureMap();map.invalidateSize();renderMap()},50);
+}
+
+function saveState(){localStorage.setItem(STORE.route,JSON.stringify(route))}
+function loadState(){try{let x=JSON.parse(localStorage.getItem(STORE.route));if(Array.isArray(x)&&x.length)route=x}catch{}}
+function history(){try{return JSON.parse(localStorage.getItem(STORE.history))||[]}catch{return[]}}
+function renderHistory(){
+ let h=history();$("historyBox").style.display=h.length?"block":"none";$("historyList").innerHTML=h.map(x=>`<div class="hist"><div><b>${esc(x.name)}</b><br><small>${esc(x.date)} · ${x.count} ta</small></div><div><button class="btn ghost" onclick="loadHist('${x.id}')">Yuklash</button><button class="btn danger" onclick="delHist('${x.id}')">×</button></div></div>`).join("");
+}
+window.loadHist=id=>{let x=history().find(y=>y.id===id);if(x&&confirm("Marshrut almashtirilsinmi?")){route=x.data;saveState();render()}};
+window.delHist=id=>{localStorage.setItem(STORE.history,JSON.stringify(history().filter(x=>x.id!==id)));renderHistory()};
+function toast(s){let t=$("toast");t.textContent=s;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)}
+function copyRoute(){
+ let s="Qo‘qon marshruti\n"+route.map((x,i)=>{
+  if(x.isDepot) return `${x.isStartDepot?"B":"Q"}. ${x.name}${x.note?" ["+x.note+"]":""}`;
+  return `${i}. [${x.oldId}/${x.newId}] ${x.name}${x.note?" ["+x.note+"]":""}`;
+ }).join("\n");
+ navigator.clipboard?.writeText(s).then(()=>toast("Nusxalandi"));
+}
+function reverseRoute(){
+ if(route.length<3)return;
+ if(!confirm("Marshrut teskari yo‘nalishga aylantirilsinmi?"))return;
+ let start=route[0],end=route[route.length-1],mid=route.slice(1,-1).reverse();
+ route=[start,...mid,end];
+ saveState();render();
+ if(map)setTimeout(()=>{map.invalidateSize();renderMap()},60);
+ toast("Marshrut teskari qilindi");
+}
+function clear(){if(confirm("Marshrut tozalansinmi?")){route=[];localStorage.removeItem(STORE.route);render()}}
+function reset(){if(confirm("Yangi kun boshlansinmi?")){route=[];$("input").value="";localStorage.removeItem(STORE.route);render()}}
+
+$("date").textContent=new Date().toLocaleDateString("uz-UZ",{weekday:"long",day:"numeric",month:"long"});
+$("upload").onclick=()=>$("file").click();$("file").onchange=e=>scan(e.target.files[0]);
+$("build").onclick=build;
+$("quickBtn").onclick=quickAdd;
+$("quickInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();quickAdd();}};
+$("listTab").onclick=()=>tab("list");$("mapTab").onclick=()=>tab("map");$("clear").onclick=clear;$("reset").onclick=reset;$("copy").onclick=copyRoute;$("reverseBtn").onclick=reverseRoute;
+$("historyToggle").onclick=()=>{$("historyBody").classList.toggle("open");$("arrow").textContent=$("historyBody").classList.contains("open")?"▲":"▼"};
+$("save").onclick=()=>{$("routeName").value="Marshrut "+new Date().toLocaleDateString("uz-UZ");$("modal").classList.add("open")};
+$("modalClose").onclick=()=>$("modal").classList.remove("open");
+$("modalSave").onclick=()=>{let n=$("routeName").value.trim();if(!n)return;let h=history();h.unshift({id:Date.now()+"",name:n,date:new Date().toLocaleDateString("uz-UZ"),count:route.filter(x=>!x.isDepot).length,data:route});localStorage.setItem(STORE.history,JSON.stringify(h));$("modal").classList.remove("open");renderHistory();toast("Saqlandi")};
+loadState();render();
+</script>
+</body>
+</html>

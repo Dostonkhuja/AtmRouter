@@ -267,6 +267,16 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:16px;font-wei
 <div class="sum-actions"><button class="btn ghost square" id="reverseBtn" title="Marshrutni teskari qilish">⇄</button><button class="btn ghost square" id="save">Saqlash</button><button class="btn ghost square" id="copy">Copy</button><button class="btn danger square" id="clear">Tozalash</button></div>
 </div>
 
+<section class="card" id="taskStatsCard" style="display:none">
+  <div class="label">Vazifalar statistikasi</div>
+  <div id="taskStatsContent" style="font-size:12px;line-height:1.5;color:var(--ink);"></div>
+  <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;">
+    <div class="label" style="margin:0;">Kassir uchun kalit va jihozlar</div>
+    <button class="btn ghost" id="copyCashierBtn" style="padding:6px 10px;font-size:11px;">Kassirga copy</button>
+  </div>
+  <div id="cashierListContent" style="font-size:12px;margin-top:6px;color:var(--muted);line-height:1.4;"></div>
+</section>
+
 <div id="list"></div>
 <div id="mapView">
   <div id="map"></div>
@@ -300,68 +310,68 @@ const START="19765", SPEED=35;
 const STORE={route:"qoqon_route_current",history:"qoqon_routes_history"};
 
 const RAW=[
-[19765,62591,"Kapitalbank filiali Qo‘qon",40.527507,70.939744,"Qo‘qon shahri"],
-[27192,62612,"Юсуфбек",40.508181,70.930420,"Qo‘qon shahri"],
-[25540,62638,"Навоий Марварид",40.541127,70.972689,"Qo‘qon shahri"],
-[20581,62625,"Навоий Беназир",40.539578,70.973586,"Qo‘qон shahri"],
-[25543,62639,"Жиннихона",40.551695,70.961524,"Qo‘qон shahri"],
-[22751,62631,"Эски Беназир",40.543332,70.935198,"Qo‘қon shahri"],
-[25553,62643,"Янги Беназир",40.548711,70.923874,"Qo‘qon shahri"],
-[25528,62632,"Екстренный больница",40.552613,70.930078,"Qo‘qon shahri"],
-[25532,62635,"Мостни таги Янги бозор",40.551276,70.961628,"Qo‘qon shahri"],
-[35116,62645,"Коппон",40.526184,70.955035,"Qo‘qon shahri"],
-[40747,62620,"Al Fajr",40.542249,70.921159,"Qo‘qon shahri"],
-[31212,62614,"Найманча",40.524491,70.874890,"Qo‘qon shahri"],
-[25534,62636,"Қўқонбой",40.469919,71.036609,"Qo‘qon shahri"],
-[25546,62641,"Тўлибой",40.571512,70.949227,"Qo‘qon shahri"],
-[25531,62603,"Furqat bozor",40.485157,70.771771,"Furqat tumani"],
-[20578,62593,"Фурқат 2-мактаб",40.483434,70.768838,"Furqat tumani"],
-[22742,62594,"Фурқат центр Беназир",40.481127,70.771070,"Furqat tumani"],
-[22752,62598,"Томоша",40.469525,70.725567,"Furqat tumani"],
-[22754,62599,"Калдушон",40.472005,70.865062,"Furqat tumani"],
-[25524,62600,"Эшон",40.432663,70.786514,"Furqat tumani"],
-[25526,62602,"Қоратепа",40.496170,70.947387,"Furqat tumani yo'nalishi"],
-[22746,62596,"Катта Янги",40.412961,70.795135,"Furqat tumani"],
-[22749,62597,"Ohunqaynar",40.489739,70.919255,"O‘zbekiston tumani"],
-[25539,62605,"Yaypan Ibn Sino",40.380730,70.807390,"O‘zbekiston tumani"],
-[25551,62608,"Yaypan bozor",40.382123,70.808672,"O‘zbekiston tumani"],
-[35118,62615,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani"],
-[35119,62616,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani"],
-[35121,62617,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani"],
-[25556,62611,"Turon stadion",40.376154,70.825625,"O‘zbekiston tumani"],
-[25555,62610,"Nursuq Xumo market",40.365995,70.749656,"O‘zbekiston tumani"],
-[22745,62595,"Nursux Real Market",40.370269,70.766439,"O‘zbekiston tumani"],
-[20564,62592,"Qudash",40.431528,70.872480,"O‘zbekiston tumani"],
-[31211,62613,"Qushqanoq",40.426288,70.866018,"O‘zbekiston tumani"],
-[25533,62604,"Конизар, туман больница",40.373317,70.834863,"O‘zbekiston tumani"],
-[35122,62618,"Яккатут",40.440822,70.882844,"O‘zbekiston tumani"],
-[25525,62601,"Тагоб",40.363333,70.740183,"O‘zbekiston tumani"],
-[25554,62609,"O‘qchi",40.335926,71.000247,"O‘zbekiston tumani"],
-[25542,62606,"Katta Minglar",40.539945,70.874052,"Dang‘ara tumani"],
-[35125,62647,"Данғара Марварид",40.579433,70.915486,"Dang‘ara tumani"],
-[25536,62637,"Мулкобод",40.669926,70.925951,"Dang‘ara tumani"],
-[25545,62640,"Доимобод",40.644189,70.801574,"Dang‘ara tumani"],
-[25548,62642,"Оқжар",40.667287,70.776388,"Dang‘ara tumani"],
-[20582,62626,"Оқжар Султон",40.672539,70.786122,"Dang‘ara tumani"],
-[25544,62607,"Бекобод",40.491804,70.834974,"Qo‘qon shahri"],
-[35120,62646,"Texnomart Bog‘dod",40.459033,71.213925,"Bog‘dod tumani"],
-[40748,62648,"Палма Боғдод",40.490608,71.108615,"Bog‘dod tumani"],
-[40755,62650,"Бордон",40.521392,71.162372,"Bog‘dod tumani"],
-[40754,62649,"Rishton",40.359448,71.279270,"Rishton tumani"],
-[20574,62621,"Водий Тараққиёт Янги Қўрғон",40.557274,71.142729,"Yangiqo‘rg‘on tumani"],
-[20577,62622,"Yangi Qo‘rg‘on Yulduzcha",40.560428,71.143001,"Yangiqo‘rg‘on tumani"],
-[20583,62627,"Янги Қўрғон бозорча",40.560076,71.142444,"Yangiqo‘rg‘on tumani"],
-[20579,62623,"Чуваланчи",40.492685,71.148291,"Yangiqo‘rg‘on tumani"],
-[35115,62644,"Бувайда круг",40.635463,71.079558,"Buvayda tumani"],
-[25529,62633,"Пошшопирим",40.629550,71.173002,"Buvayda tumani"],
-[22743,62629,"Бештерак",40.616193,71.054612,"Buvayda tumani"],
-[22747,62630,"Асмо Учкўприк",40.544409,71.055668,"Uchko‘prik tumani"],
-[20584,62628,"Sobirjon qishloq",40.618183,70.986767,"Uchko‘prik tumani"],
-[25530,62634,"Қораянтоқ",40.641035,70.998435,"Uchko‘prik tumani"],
-[20580,62624,"Қирғиз",40.416068,71.020548,"Uchko‘prik tumani"],
-[40744,62619,"Рапқон",40.351413,70.666247,"Beshariq tumani"]
+[19765,62591,"Kapitalbank filiali Qo‘qon",40.527507,70.939744,"Qo‘qon shahri","Full"],
+[27192,62612,"yangi bozor",40.5506944,70.9622778,"Qo‘qon shahri","обычный"],
+[25540,62638,"Навоий Марварид",40.541127,70.972689,"Qo‘qon shahri","Full"],
+[20581,62625,"Навоий Беназир",40.539578,70.973586,"Qo‘qон shahri","обычный"],
+[25543,62639,"Жиннихона",40.551695,70.961524,"Qo‘qон shahri","Full"],
+[22751,62631,"Эски Беназир",40.543332,70.935198,"Qo‘qon shahri","обычный"],
+[25553,62643,"Янги Беназир",40.548711,70.923874,"Qo‘qon shahri","обычный"],
+[25528,62632,"Екстренный больница",40.552613,70.930078,"Qo‘qon shahri","обычный"],
+[25532,62635,"Мостни таги Янги бозор",40.551276,70.961628,"Qo‘qon shahri","обычный"],
+[35116,62645,"Коппон",40.526184,70.955035,"Qo‘qon shahri","обычный"],
+[40747,62620,"Al Fajr",40.542249,70.921159,"Qo‘qon shahri","обычный"],
+[31212,62614,"Найманча",40.524491,70.874890,"Qo‘qon shahri","Smart"],
+[25534,62636,"Қўқонбой",40.469919,71.036609,"Qo‘qon shahri","обычный"],
+[25546,62641,"Тўлибой",40.571512,70.949227,"Qo‘qon shahri","Full"],
+[25531,62603,"Furqat bozor",40.485157,70.771771,"Furqat tumani","Full"],
+[20578,62593,"Фурқат 2-мактаб",40.483434,70.768838,"Furqat tumani","обычный"],
+[22742,62594,"Фурқат центр Беназир",40.481127,70.771070,"Furqat tumani","обычный"],
+[22752,62598,"Томоша",40.469525,70.725567,"Furqat tumani","обычный"],
+[22754,62599,"Калдушон",40.472005,70.865062,"Furqat tumani","обычный"],
+[25524,62600,"Эшон",40.432663,70.786514,"Furqat tumani","обычный"],
+[25526,62602,"Қоратепа",40.496170,70.947387,"Furqat tumani yo'nalishi","обычный"],
+[22746,62596,"Катта Янги",40.412961,70.795135,"Furqat tumani","обычный"],
+[22749,62597,"Ohunqaynar",40.489739,70.919255,"O‘zbekiston tumani","обычный"],
+[25539,62605,"Yaypan Ibn Sino",40.380730,70.807390,"O‘zbekiston tumani","обычный"],
+[25551,62608,"Yaypan bozor",40.382123,70.808672,"O‘zbekiston tumani","обычный"],
+[35118,62615,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani","Smart"],
+[35119,62616,"Yaypan Smart",40.380938,70.810247,"O‘zbekiston tumani","Smart"],
+[35121,62617,"Yaypan Musiqa maktab",40.379387,70.812759,"O‘zbekiston tumani","Smart"],
+[25556,62611,"Rishton makro magazin",40.359163,71.277808,"O‘zbekiston tumani","обычный"],
+[25555,62610,"Nursuq Xumo market",40.365995,70.749656,"O‘zbekiston tumani","Full"],
+[22745,62595,"Nursux Real Market",40.370269,70.766439,"O‘zbekiston tumani","обычный"],
+[20564,62592,"Qudash",40.431528,70.872480,"O‘zbekiston tumani","обычный"],
+[31211,62613,"Qushqanoq",40.426288,70.866018,"O‘zbekiston tumani","обычный"],
+[25533,62604,"Конизар, туман больница",40.373317,70.834863,"O‘zbekiston tumani","обычный"],
+[35122,62618,"Яккатут",40.440822,70.882844,"O‘zbekiston tumani","Smart"],
+[25525,62601,"Тагоб",40.363333,70.740183,"O‘zbekiston tumani","обычный"],
+[25554,62609,"Qo‘qon zelyoniy bozor",40.537659,70.925535,"O‘zbekiston tumani","обычный"],
+[25542,62606,"Katta Minglar",40.539945,70.874052,"Dang‘ara tumani","обычный"],
+[35125,62647,"Данғара Марварид",40.579433,70.915486,"Dang‘ara tumani","Full"],
+[25536,62637,"Мулкобод",40.669926,70.925951,"Dang‘ara tumani","Full"],
+[25545,62640,"Dang’ara Markaziy shifoxona",40.582739,70.918263,"Dang‘ara tumani","обычный"],
+[25548,62642,"Оқжар",40.667287,70.776388,"Dang‘ara tumani","Full"],
+[20582,62626,"Оқжар Султон",40.672539,70.786122,"Dang‘ara tumani","Smart"],
+[25544,62607,"Бекобод",40.491804,70.834974,"Qo‘qon shahri","обычный"],
+[35120,62646,"Texnomart Bog‘dod",40.459033,71.213925,"Bog‘dod tumani","Full"],
+[40748,62648,"Палма Боғдод",40.490608,71.108615,"Bog‘dod tumani","обычный"],
+[40755,62650,"Бордон",40.521392,71.162372,"Bog‘dod tumani","Full"],
+[40754,62649,"Rishton",40.359448,71.279270,"Rishton tumani","Full"],
+[20574,62621,"Водий Тараққиёт Янги Қўрғон",40.557274,71.142729,"Yangiqo‘rg‘on tumani","обычный"],
+[20577,62622,"Yangi Qo‘rg‘on Yulduzcha",40.560428,71.143001,"Yangiqo‘rg‘on tumani","обычный"],
+[20583,62627,"Янги Қўрғон бозорча",40.560076,71.142444,"Yangiqo‘rg‘on tumani","обычный"],
+[20579,62623,"Чуваланчи",40.492685,71.148291,"Yangiqo‘rg‘on tumani","Full"],
+[35115,62644,"Buvayda круг",40.635463,71.079558,"Buvayda tumani","обычный"],
+[25529,62633,"Пошшопирим",40.629550,71.173002,"Buvayda tumani","Full"],
+[22743,62629,"Бештерак",40.616193,71.054612,"Buvayda tumani","обычный"],
+[22747,62630,"Асмо Учкўприк",40.544409,71.055668,"Uchko‘prik tumani","обычный"],
+[20584,62628,"Qo’qon Shinam choyxona",40.548422,70.950266,"Uchko‘prik tumani","обычный"],
+[25530,62634,"Қораянтоқ",40.641035,70.998435,"Uchko‘prik tumani","Full"],
+[20580,62624,"Қирғиз",40.416068,71.020548,"Uchko‘prik tumani","обычный"],
+[40744,62619,"Рапқон",40.351413,70.666247,"Beshariq tumani","Full"]
 ];
-const DB=RAW.map(([oldId,newId,name,lat,lng,region])=>({oldId:String(oldId),newId:String(newId),name,lat,lng,region,hasCoords:lat!=null&&lng!=null}));
+const DB=RAW.map(([oldId,newId,name,lat,lng,region,type])=>({oldId:String(oldId),newId:String(newId),name,lat,lng,region,type:type||"обычный",hasCoords:lat!=null&&lng!=null}));
 
 const TEMPLATE_A=["40747","22751","25553","25528","25546","35125","25545","25548","20582","20584","25536","25530","22743","35115","25529","20577","20583","20574","40755","20579","35120","40754","40748","20580","25534","22747","20581","25540","25532","25543","35116"];
 const TEMPLATE_B=["27192","22749","25526","35122","20564","31211","25533","25554","25556","35118","35119","35121","25551","25539","22745","25555","25525","40744","22746","25524","22742","20578","25531","22752","25544","22754","31212","25542"];
@@ -493,7 +503,13 @@ function remove(i){
     route.splice(i,1);saveState();render();toast("O‘chirildi");
   }
 }
-function note(i,v){if(route[i]){route[i].note=v;saveState()}}
+function note(i,v){
+  if(route[i]){
+    route[i].note=v;
+    saveState();
+    updateTaskStats();
+  }
+}
 window.move=move;window.toggleDone=toggleDone;window.remove=remove;window.note=note;
 
 function setBusy(b){
@@ -544,8 +560,56 @@ const km=x=>x<1?Math.round(x*1000)+" m":x.toFixed(1)+" km";
 function render(){
  const has=route.length>0;
  $("tabs").style.display=has?"flex":"none";$("summary").style.display=has?"flex":"none";$("quick").style.display=has?"flex":"none";
- renderList();renderSummary();renderHistory();nav();
+ renderList();renderSummary();updateTaskStats();renderHistory();nav();
  if(map&&$("mapView").style.display!=="none")renderMap();
+}
+
+function updateTaskStats(){
+ let activeStops=route.filter(x=>!x.isDepot);
+ if(!activeStops.length){
+  $("taskStatsCard").style.display="none";
+  return;
+ }
+ $("taskStatsCard").style.display="block";
+
+ let counts={"410":0,"710":0,"Log":0,"Dispenser/Disp":0,"Rider":0,"Kalit":0};
+ let cashierItems=[];
+
+ activeStops.forEach(s=>{
+  let n=(s.note||"").toLowerCase();
+  if(/410/.test(n)) counts["410"]++;
+  if(/710/.test(n)) counts["710"]++;
+  if(/log|лог/.test(n)) counts["Log"]++;
+  if(/disp|дисп/.test(n)){ counts["Dispenser/Disp"]++; cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`); }
+  if(/rider|райдер/.test(n)){ counts["Rider"]++; cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`); }
+  if(/kalit|ключ/.test(n)){ counts["Kalit"]++; cashierItems.push(`[${s.oldId}/${s.newId}] ${s.name}: ${s.note}`); }
+ });
+
+ let statsHtml=Object.entries(counts)
+  .filter(([k,v])=>v>0)
+  .map(([k,v])=>`<span style="display:inline-block;background:rgba(0,0,0,0.04);padding:3px 8px;border-radius:6px;margin:2px 4px 2px 0;font-weight:600;"><b>${k}:</b> ${v} ta</span>`)
+  .join("");
+
+ $("taskStatsContent").innerHTML=statsHtml||'<span style="color:var(--muted)">Hozircha izohlarda maxsus belgilar kiritilmadi</span>';
+
+ if(cashierItems.length>0){
+  $("cashierListContent").innerHTML=`<b>Kerakli jihozlar/kalitlar (${cashierItems.length} ta punkt):</b><br>`+cashierItems.map(item=>`• ${esc(item)}`).join("<br>");
+ }else{
+  $("cashierListContent").innerHTML='<span style="color:var(--muted)">Dispenser, rider yoki kalit talab qilinadigan punktlar yo‘q.</span>';
+ }
+}
+
+function copyCashierText(){
+ let activeStops=route.filter(x=>!x.isDepot);
+ let cashierItems=activeStops.filter(s=>{
+  let n=(s.note||"").toLowerCase();
+  return /disp|дисп|rider|райдер|kalit|ключ/.test(n);
+ });
+ 
+ let text="Kassirga topshiriladigan kalit va jihozlar:\n"+
+  (cashierItems.length ? cashierItems.map(s=>`• [${s.oldId}/${s.newId}] ${s.name} - Izoh: ${s.note}`).join("\n") : "Maxsus kalit va jihozlar talab qilinadigan punktlar yo‘q.");
+ 
+ navigator.clipboard?.writeText(text).then(()=>toast("Kassir uchun nusxalandi"));
 }
 
 function renderList(){
@@ -553,9 +617,10 @@ function renderList(){
  $("list").innerHTML=route.map((s,i)=>{
   let seq=s.isStartDepot?"B":s.isReturnDepot?"Q":i,cl=s.isDepot?"depot":s.done?"done":"";
   let circuitBadge=SET_A.has(s.oldId)?'<span class="badge ca">A</span>':SET_B.has(s.oldId)?'<span class="badge cb">B</span>':"";
+  let typeBadge = s.type === "Full" ? '<span class="badge" style="background:var(--accent);color:var(--dark-ink)">Full</span>' : s.type === "Smart" ? '<span class="badge" style="background:var(--ok);color:#fff">Smart</span>' : '<span class="badge" style="background:#ff2d5522;color:#ff2d55">обычный</span>';
   return `<div class="stop" id="stop-${i}"><div class="rail"><div class="seq ${cl}">${seq}</div></div><div class="stopcard ${s.done?"done":""}">
   ${!s.isDepot?`<button class="remove" onclick="remove(${i})" title="O‘chirish">×</button>`:""}
-  <div class="name">${esc(s.name)}${s.justAdded?'<span class="badge new">YANGI</span>':""}</div>
+  <div class="name">${esc(s.name)}${!s.isDepot?typeBadge:""}${s.justAdded?'<span class="badge new">YANGI</span>':""}</div>
   ${!s.isDepot?`<div class="ids">eski ${esc(s.oldId)} · yangi ${esc(s.newId)} ${circuitBadge}</div>`:""}
   ${!s.isDepot?`<input class="note" value="${esc(s.note||"")}" placeholder="Vazifa / izoh..." oninput="note(${i},this.value)">`:""}
   ${!s.isDepot?`<div class="actions">
@@ -662,6 +727,7 @@ $("upload").onclick=()=>$("file").click();$("file").onchange=e=>scan(e.target.fi
 $("build").onclick=build;
 $("quickBtn").onclick=quickAdd;
 $("quickInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();quickAdd();}};
+$("copyCashierBtn").onclick=copyCashierText;
 $("listTab").onclick=()=>tab("list");$("mapTab").onclick=()=>tab("map");$("clear").onclick=clear;$("reset").onclick=reset;$("copy").onclick=copyRoute;$("reverseBtn").onclick=reverseRoute;
 $("historyToggle").onclick=()=>{$("historyBody").classList.toggle("open");$("arrow").textContent=$("historyBody").classList.contains("open")?"▲":"▼"};
 $("save").onclick=()=>{$("routeName").value="Marshrut "+new Date().toLocaleDateString("uz-UZ");$("modal").classList.add("open")};
@@ -671,3 +737,4 @@ loadState();render();
 </script>
 </body>
 </html>
+
